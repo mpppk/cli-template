@@ -26,7 +26,7 @@ brew:
   github:
     owner: mpppk
     name: homebrew-mpppk
-  homepage: "https://github.com/mpppk/cli-template"
+  homepage: "https://github.com/mpppk/goofy"
   description: "some description"
   test: |
     system "#{bin}/hlb --help"

@@ -7,7 +7,7 @@ import (
 )
 
 const Version = "1.2.3"
-const slug = "mpppk/cli-template"
+const slug = "mpppk/goofy"
 
 func DoSelfUpdate() (bool, error) {
 	v := semver.MustParse(Version)
