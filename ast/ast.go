@@ -4,6 +4,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"strings"
 
 	"github.com/pkg/errors"
 	"golang.org/x/tools/go/ast/astutil"
@@ -11,13 +12,13 @@ import (
 )
 
 func NewProgram(fileName string, source interface{}) (*loader.Program, error) {
-	loader := loader.Config{ParserMode: parser.ParseComments}
-	astf, err := loader.ParseFile(fileName, source)
+	lo := loader.Config{ParserMode: parser.ParseComments}
+	astf, err := lo.ParseFile(fileName, source)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse file from "+fileName)
 	}
-	loader.CreateFromFiles("main", astf)
-	return loader.Load()
+	lo.CreateFromFiles("main", astf)
+	return lo.Load()
 }
 
 func IsErrorFunc(funcDecl *ast.FuncDecl) bool {
@@ -32,17 +33,19 @@ func ConvertErrorFuncToMustFunc(prog *loader.Program, funcDecl *ast.FuncDecl) (*
 	if !IsErrorFunc(funcDecl) {
 		return nil, false
 	}
-	// 最後の戻り値を削除
 	results := funcDecl.Type.Results.List
 	funcDecl.Type.Results.List = results[:len(results)-1]
 	replaceReturnStmtByPanicIfErrorExist(prog, funcDecl)
+	addPrefixToFunc(funcDecl, "Must")
 	return funcDecl, true
 }
 
+func addPrefixToFunc(funcDecl *ast.FuncDecl, prefix string) {
+	funcNameRunes := []rune(funcDecl.Name.Name)
+	funcDecl.Name.Name = prefix + strings.ToUpper(string(funcNameRunes[0])) + string(funcNameRunes[1:])
+}
+
 func replaceReturnStmtByPanicIfErrorExist(prog *loader.Program, funcDecl *ast.FuncDecl) *ast.FuncDecl {
-	// return行を書き換え
-	// errorがnilなら単に削除
-	// errorが存在すれば、代わりにpanic
 	newFuncDeclNode := astutil.Apply(funcDecl, func(cr *astutil.Cursor) bool {
 		returnStmt, ok := cr.Node().(*ast.ReturnStmt)
 		if !ok {
@@ -58,7 +61,6 @@ func replaceReturnStmtByPanicIfErrorExist(prog *loader.Program, funcDecl *ast.Fu
 		lastReturnResult := returnResults[len(returnResults)-1]
 		returnStmt.Results = returnResults[:len(returnResults)-1]
 		if lastReturnResultIdent, ok := lastReturnResult.(*ast.Ident); ok {
-
 			if lastReturnResultIdent.Name == "nil" {
 				return true
 			}
@@ -69,49 +71,21 @@ func replaceReturnStmtByPanicIfErrorExist(prog *loader.Program, funcDecl *ast.Fu
 		}
 
 		if lastReturnResultCallExpr, ok := lastReturnResult.(*ast.CallExpr); ok {
-			// TODO: returnの最後が関数の場合は、関数の戻り値をerrorだけ一旦受けて、
-			// それがnilでなければpanicする
-
-			selectorExpr, ok := lastReturnResultCallExpr.Fun.(*ast.SelectorExpr)
-			if !ok {
-				panic("lastReturnresultCallExpr.Fun is not *ast.SelectorExpr")
+			types, err := getCallExprReturnTypes(prog, lastReturnResultCallExpr)
+			if err != nil {
+				panic(err)
 			}
-			_, _ = selectorExpr.X.(*ast.Ident)
-			xIdent, ok := selectorExpr.X.(*ast.Ident)
-			if !ok {
-				panic("selectorExpr.X is not *ast.Ident")
-			}
-
-			pkg := prog.Package(xIdent.Name)
-			types, ok := getFuncDeclResultTypes(pkg, selectorExpr.Sel.Name)
-			if !ok {
-				panic("func not found: " + xIdent.Name)
-			}
-
 			var lhs []string
 			for range types {
 				lhs = append(lhs, "_")
 			}
 
-			tempErrValueName := "goofyTempErrValue" // FIXME
-			lhs[len(lhs)-1] = tempErrValueName      // FIXME スコープ内に同名の変数があれば適当に変えるorDEFINEじゃなくて代入にする
+			tempErrValueName := "e"            // FIXME
+			lhs[len(lhs)-1] = tempErrValueName // FIXME スコープ内に同名の変数があれば適当に変えるorDEFINEじゃなくて代入にする
 			assignStmt := generateAssignStmt(lhs, lastReturnResultCallExpr)
 			panicIfErrExistIfStmt := generatePanicIfErrorExistStmtAst(tempErrValueName)
 			cr.InsertBefore(assignStmt)
 			cr.InsertBefore(panicIfErrExistIfStmt)
-
-			// TODO: errorがnilでないので、returnStmtを削除し、代わりにpanicする
-			//returnStmt.Results = returnResults[:len(returnResults)-1]
-			//
-			//if len(types) <= 1 {
-			//	return true
-			//}
-			//
-			//for _, newType := range types[:len(types)-1] {
-			//	returnStmt.Results = append(returnStmt.Results, &ast.Ident{
-			//		Name: newType,
-			//	})
-			//}
 		}
 
 		return true
@@ -137,15 +111,24 @@ func extractFuncLastResultExpr(funcDecl *ast.FuncDecl) (ast.Expr, bool) {
 	return results[len(results)-1].Type, true
 }
 
-func generatePanicAst(args []ast.Expr) *ast.ExprStmt {
-	return &ast.ExprStmt{
-		X: &ast.CallExpr{
-			Fun: &ast.Ident{
-				Name: "panic",
-			},
-			Args: args,
-		},
+func getCallExprReturnTypes(prog *loader.Program, callExpr *ast.CallExpr) ([]string, error) {
+	selectorExpr, ok := callExpr.Fun.(*ast.SelectorExpr)
+	if !ok {
+		return nil, errors.New("lastReturnResultCallExpr.Fun is not *ast.SelectorExpr")
 	}
+
+	xIdent, ok := selectorExpr.X.(*ast.Ident)
+	if !ok {
+		return nil, errors.New("selectorExpr.X is not *ast.Ident")
+	}
+
+	pkg := prog.Package(xIdent.Name)
+	types, ok := getFuncDeclResultTypes(pkg, selectorExpr.Sel.Name)
+	if !ok {
+		return nil, errors.New("func not found: " + xIdent.Name)
+	}
+
+	return types, nil
 }
 
 func getFuncDeclResultTypes(packageInfo *loader.PackageInfo, funcName string) (types []string, ok bool) {
@@ -193,10 +176,13 @@ func generateAssignStmt(lhNames []string, callExpr *ast.CallExpr) *ast.AssignStm
 			callExpr,
 		},
 	}
-
 }
 
 func generatePanicIfErrorExistStmtAst(errValName string) *ast.IfStmt {
+	// generatePanicIfErrorExistStmtAst return ast of below code
+	// if errValName != nil {
+	//     panic(errValName)
+	// }
 	return &ast.IfStmt{
 		Cond: &ast.BinaryExpr{
 			X: &ast.Ident{

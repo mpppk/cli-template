@@ -5,7 +5,6 @@ import (
 	"go/format"
 	"go/token"
 	"os"
-	"strings"
 
 	goofyast "github.com/mpppk/goofy/ast"
 	"github.com/spf13/cobra"
@@ -31,8 +30,6 @@ var mustifyCmd = &cobra.Command{
 						continue
 					}
 					newD, ok := goofyast.ConvertErrorFuncToMustFunc(prog, funcDecl)
-					funcNameRunes := []rune(newD.Name.Name)
-					newD.Name.Name = "Must" + strings.ToUpper(string(funcNameRunes[0])) + string(funcNameRunes[1:])
 					if !ok {
 						continue
 					}
