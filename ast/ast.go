@@ -6,6 +6,7 @@ import (
 	"go/parser"
 	"go/token"
 	"go/types"
+	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -14,12 +15,23 @@ import (
 )
 
 func NewProgram(fileName string, source interface{}) (*loader.Program, error) {
-	lo := loader.Config{ParserMode: parser.ParseComments}
-	astf, err := lo.ParseFile(fileName, source)
+	lo := loader.Config{
+		Fset:       token.NewFileSet(),
+		ParserMode: parser.ParseComments}
+	dirPath := filepath.Dir(fileName)
+	packages, err := parser.ParseDir(lo.Fset, dirPath, nil, parser.ParseComments)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse file from "+fileName)
+		return nil, errors.Wrap(err, "failed to parse dir: "+dirPath)
 	}
-	lo.CreateFromFiles("main", astf)
+
+	var files []*ast.File
+	for _, pkg := range packages {
+		for _, file := range pkg.Files {
+			files = append(files, file)
+		}
+	}
+
+	lo.CreateFromFiles("main", files...)
 	return lo.Load()
 }
 
@@ -31,13 +43,13 @@ func IsErrorFunc(funcDecl *ast.FuncDecl) bool {
 	return lastResultIdent.Name == "error"
 }
 
-func ConvertErrorFuncToMustFunc(prog *loader.Program, pkg *loader.PackageInfo, funcDecl *ast.FuncDecl) (*ast.FuncDecl, bool) {
+func ConvertErrorFuncToMustFunc(prog *loader.Program, currentPkg *loader.PackageInfo, funcDecl *ast.FuncDecl) (*ast.FuncDecl, bool) {
 	if !IsErrorFunc(funcDecl) {
 		return nil, false
 	}
 	results := funcDecl.Type.Results.List
 	funcDecl.Type.Results.List = results[:len(results)-1]
-	replaceReturnStmtByPanicIfErrorExist(prog, pkg, funcDecl)
+	replaceReturnStmtByPanicIfErrorExist(prog, currentPkg, funcDecl)
 	addPrefixToFunc(funcDecl, "Must")
 	return funcDecl, true
 }
@@ -47,7 +59,7 @@ func addPrefixToFunc(funcDecl *ast.FuncDecl, prefix string) {
 	funcDecl.Name.Name = prefix + strings.ToUpper(string(funcNameRunes[0])) + string(funcNameRunes[1:])
 }
 
-func replaceReturnStmtByPanicIfErrorExist(prog *loader.Program, pkg *loader.PackageInfo, funcDecl *ast.FuncDecl) *ast.FuncDecl {
+func replaceReturnStmtByPanicIfErrorExist(prog *loader.Program, currentPkg *loader.PackageInfo, funcDecl *ast.FuncDecl) *ast.FuncDecl {
 	newFuncDeclNode := astutil.Apply(funcDecl, func(cr *astutil.Cursor) bool {
 		returnStmt, ok := cr.Node().(*ast.ReturnStmt)
 		if !ok {
@@ -72,7 +84,7 @@ func replaceReturnStmtByPanicIfErrorExist(prog *loader.Program, pkg *loader.Pack
 		}
 
 		if lastReturnResultCallExpr, ok := lastReturnResult.(*ast.CallExpr); ok {
-			typeNames, err := getCallExprReturnTypes(prog, lastReturnResultCallExpr)
+			typeNames, err := getCallExprReturnTypes(prog, currentPkg, lastReturnResultCallExpr)
 			if err != nil {
 				panic(err)
 			}
@@ -81,8 +93,7 @@ func replaceReturnStmtByPanicIfErrorExist(prog *loader.Program, pkg *loader.Pack
 				lhs = append(lhs, "_")
 			}
 
-			//tempErrValueName := "err"          // FIXME
-			tempErrValueName := getAvailableValueName(pkg.Pkg, "err", lastReturnResultCallExpr.Pos())
+			tempErrValueName := getAvailableValueName(currentPkg.Pkg, "err", lastReturnResultCallExpr.Pos())
 			lhs[len(lhs)-1] = tempErrValueName // FIXME スコープ内に同名の変数があれば適当に変えるorDEFINEじゃなくて代入にする
 			assignStmt := generateAssignStmt(lhs, lastReturnResultCallExpr)
 			panicIfErrExistIfStmt := generatePanicIfErrorExistStmtAst(tempErrValueName)
@@ -96,8 +107,8 @@ func replaceReturnStmtByPanicIfErrorExist(prog *loader.Program, pkg *loader.Pack
 	return newFuncDecl
 }
 
-func getAvailableValueName(pkg *types.Package, valName string, pos token.Pos) string {
-	innerMost := pkg.Scope().Innermost(pos)
+func getAvailableValueName(currentPkg *types.Package, valName string, pos token.Pos) string {
+	innerMost := currentPkg.Scope().Innermost(pos)
 	s, _ := innerMost.LookupParent(valName, pos)
 	if s == nil {
 		return valName
@@ -125,6 +136,15 @@ func extractFuncLastResultIdent(funcDecl *ast.FuncDecl) (*ast.Ident, bool) {
 }
 
 func extractFuncLastResultExpr(funcDecl *ast.FuncDecl) (ast.Expr, bool) {
+	if funcDecl == nil {
+		panic(fmt.Sprintf("funcDecl is nil"))
+	}
+	if funcDecl.Type == nil {
+		panic(fmt.Sprintf("funcDecl.Type is nil: %v", funcDecl.Name))
+	}
+	if funcDecl.Type.Results == nil {
+		return nil, false
+	}
 	results := funcDecl.Type.Results.List
 	if len(results) == 0 {
 		return nil, false
@@ -132,32 +152,50 @@ func extractFuncLastResultExpr(funcDecl *ast.FuncDecl) (ast.Expr, bool) {
 	return results[len(results)-1].Type, true
 }
 
-func getCallExprReturnTypes(prog *loader.Program, callExpr *ast.CallExpr) ([]string, error) {
-	selectorExpr, ok := callExpr.Fun.(*ast.SelectorExpr)
+func getCallExprReturnTypes(prog *loader.Program, currentPkg *loader.PackageInfo, callExpr *ast.CallExpr) ([]string, error) {
+	pkg := currentPkg
+	var funcName string
+	switch fun := callExpr.Fun.(type) {
+	case *ast.SelectorExpr:
+		packageIdent, ok := fun.X.(*ast.Ident)
+		if !ok {
+			return nil, errors.New("selectorExpr.X is not *ast.Ident")
+		}
+		pkg = prog.Package(packageIdent.Name)
+		funcName = fun.Sel.Name
+	case *ast.Ident:
+		funcName = fun.Name
+	case nil:
+		panic("callExpr is nil")
+	}
+	fmt.Println("current pkg: " + currentPkg.Pkg.Name() + " target pkg: " + pkg.Pkg.Name())
+	typeNames, ok := getFuncDeclResultTypes(pkg, funcName)
 	if !ok {
-		return nil, errors.New("lastReturnResultCallExpr.Fun is not *ast.SelectorExpr")
+		return nil, errors.New("func not found: " + funcName)
 	}
 
-	xIdent, ok := selectorExpr.X.(*ast.Ident)
-	if !ok {
-		return nil, errors.New("selectorExpr.X is not *ast.Ident")
-	}
-
-	pkg := prog.Package(xIdent.Name)
-	types, ok := getFuncDeclResultTypes(pkg, selectorExpr.Sel.Name)
-	if !ok {
-		return nil, errors.New("func not found: " + xIdent.Name)
-	}
-
-	return types, nil
+	return typeNames, nil
 }
 
 func getFuncDeclResultTypes(packageInfo *loader.PackageInfo, funcName string) (types []string, ok bool) {
 	funcDecl, ok := getFuncDecl(packageInfo, funcName)
 	if !ok {
+		fmt.Println("failed to get func decl: " + funcName)
 		return nil, false
 	}
 
+	if funcDecl == nil {
+		panic(fmt.Sprintf("funcDecl is nil"))
+	}
+	if funcDecl.Type == nil {
+		panic(fmt.Sprintf("funcDecl.Type is nil: %v", funcDecl.Name))
+	}
+	if funcDecl.Type.Results == nil {
+		panic(fmt.Sprintf("funcDecl.Type.Results is nil: %#v", funcDecl.Type))
+	}
+	if funcDecl.Type.Results.List == nil {
+		panic("funcDecl.Type.Results.List is nil")
+	}
 	results := funcDecl.Type.Results.List
 	for _, result := range results {
 		if typeIdent, ok := result.Type.(*ast.Ident); ok {
@@ -168,6 +206,12 @@ func getFuncDeclResultTypes(packageInfo *loader.PackageInfo, funcName string) (t
 }
 
 func getFuncDecl(packageInfo *loader.PackageInfo, funcName string) (*ast.FuncDecl, bool) {
+	if packageInfo == nil {
+		panic("packageInfo is nil")
+	}
+	if packageInfo.Files == nil {
+		panic("packageInfo.Files is nil")
+	}
 	for _, file := range packageInfo.Files {
 		ast.FileExports(file)
 		for _, decl := range file.Decls {

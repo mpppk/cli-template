@@ -20,21 +20,24 @@ var mustifyCmd = &cobra.Command{
 		if err != nil {
 			panic(err)
 		}
+
+		var newDecls []ast.Decl
 		for _, pkg := range prog.Created {
 			for _, file := range pkg.Files {
 				ast.FileExports(file)
 
-				for i, decl := range file.Decls {
+				for _, decl := range file.Decls {
 					funcDecl, ok := decl.(*ast.FuncDecl)
 					if !ok {
 						continue
 					}
-					newD, ok := goofyast.ConvertErrorFuncToMustFunc(prog, pkg, funcDecl)
+					newDecl, ok := goofyast.ConvertErrorFuncToMustFunc(prog, pkg, funcDecl)
 					if !ok {
 						continue
 					}
-					file.Decls[i] = newD
+					newDecls = append(newDecls, newDecl)
 				}
+				file.Decls = newDecls
 				if err := format.Node(os.Stdout, token.NewFileSet(), file); err != nil {
 					panic(err)
 				}
