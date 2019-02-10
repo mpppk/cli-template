@@ -29,7 +29,7 @@ var mustifyCmd = &cobra.Command{
 					if !ok {
 						continue
 					}
-					newD, ok := goofyast.ConvertErrorFuncToMustFunc(prog, funcDecl)
+					newD, ok := goofyast.ConvertErrorFuncToMustFunc(prog, pkg, funcDecl)
 					if !ok {
 						continue
 					}

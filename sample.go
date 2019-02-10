@@ -16,3 +16,15 @@ func IncrementPositiveNumber(v int) (int, error) {
 	}
 	return v + 1, nil
 }
+
+func IncrementPositiveNumberTwice(v int) (newV int, err error) {
+	newV, err = IncrementPositiveNumber(v)
+	if err != nil {
+		return newV, fmt.Errorf("failed to first increment: %v", err)
+	}
+	newV, err = IncrementPositiveNumber(newV)
+	if err != nil {
+		return newV, fmt.Errorf("failed to second increment: %v", err)
+	}
+	return
+}

@@ -1,9 +1,11 @@
 package ast
 
 import (
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"go/types"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -29,13 +31,13 @@ func IsErrorFunc(funcDecl *ast.FuncDecl) bool {
 	return lastResultIdent.Name == "error"
 }
 
-func ConvertErrorFuncToMustFunc(prog *loader.Program, funcDecl *ast.FuncDecl) (*ast.FuncDecl, bool) {
+func ConvertErrorFuncToMustFunc(prog *loader.Program, pkg *loader.PackageInfo, funcDecl *ast.FuncDecl) (*ast.FuncDecl, bool) {
 	if !IsErrorFunc(funcDecl) {
 		return nil, false
 	}
 	results := funcDecl.Type.Results.List
 	funcDecl.Type.Results.List = results[:len(results)-1]
-	replaceReturnStmtByPanicIfErrorExist(prog, funcDecl)
+	replaceReturnStmtByPanicIfErrorExist(prog, pkg, funcDecl)
 	addPrefixToFunc(funcDecl, "Must")
 	return funcDecl, true
 }
@@ -45,14 +47,13 @@ func addPrefixToFunc(funcDecl *ast.FuncDecl, prefix string) {
 	funcDecl.Name.Name = prefix + strings.ToUpper(string(funcNameRunes[0])) + string(funcNameRunes[1:])
 }
 
-func replaceReturnStmtByPanicIfErrorExist(prog *loader.Program, funcDecl *ast.FuncDecl) *ast.FuncDecl {
+func replaceReturnStmtByPanicIfErrorExist(prog *loader.Program, pkg *loader.PackageInfo, funcDecl *ast.FuncDecl) *ast.FuncDecl {
 	newFuncDeclNode := astutil.Apply(funcDecl, func(cr *astutil.Cursor) bool {
 		returnStmt, ok := cr.Node().(*ast.ReturnStmt)
 		if !ok {
 			return true
 		}
 
-		// TODO: returnのvalueを省略した時どうなる?
 		returnResults := returnStmt.Results
 		if len(returnResults) == 0 {
 			return true
@@ -71,16 +72,17 @@ func replaceReturnStmtByPanicIfErrorExist(prog *loader.Program, funcDecl *ast.Fu
 		}
 
 		if lastReturnResultCallExpr, ok := lastReturnResult.(*ast.CallExpr); ok {
-			types, err := getCallExprReturnTypes(prog, lastReturnResultCallExpr)
+			typeNames, err := getCallExprReturnTypes(prog, lastReturnResultCallExpr)
 			if err != nil {
 				panic(err)
 			}
 			var lhs []string
-			for range types {
+			for range typeNames {
 				lhs = append(lhs, "_")
 			}
 
-			tempErrValueName := "e"            // FIXME
+			//tempErrValueName := "err"          // FIXME
+			tempErrValueName := getAvailableValueName(pkg.Pkg, "err", lastReturnResultCallExpr.Pos())
 			lhs[len(lhs)-1] = tempErrValueName // FIXME スコープ内に同名の変数があれば適当に変えるorDEFINEじゃなくて代入にする
 			assignStmt := generateAssignStmt(lhs, lastReturnResultCallExpr)
 			panicIfErrExistIfStmt := generatePanicIfErrorExistStmtAst(tempErrValueName)
@@ -92,6 +94,25 @@ func replaceReturnStmtByPanicIfErrorExist(prog *loader.Program, funcDecl *ast.Fu
 	}, nil)
 	newFuncDecl := newFuncDeclNode.(*ast.FuncDecl)
 	return newFuncDecl
+}
+
+func getAvailableValueName(pkg *types.Package, valName string, pos token.Pos) string {
+	innerMost := pkg.Scope().Innermost(pos)
+	s, _ := innerMost.LookupParent(valName, pos)
+	if s == nil {
+		return valName
+	}
+
+	cnt := 0
+	valNameWithNumber := fmt.Sprintf("%v%v", valName, cnt)
+	for {
+		s, _ := innerMost.LookupParent(valNameWithNumber, pos)
+		if s == nil {
+			return valNameWithNumber
+		}
+		cnt++
+		valNameWithNumber = fmt.Sprintf("%v%v", valName, cnt)
+	}
 }
 
 func extractFuncLastResultIdent(funcDecl *ast.FuncDecl) (*ast.Ident, bool) {
