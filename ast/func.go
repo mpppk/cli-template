@@ -112,7 +112,7 @@ func getCallExprReturnTypes(prog *loader.Program, currentPkg *loader.PackageInfo
 //	return structObj, true
 //}
 
-func getFuncDeclResultTypes(packageInfo *loader.PackageInfo, recvName, funcName string) (types []string, ok bool) {
+func getFuncDeclResultTypes(packageInfo *loader.PackageInfo, recvName, funcName string) (typeNames []string, ok bool) {
 	funcDecl, ok := getFuncDeclByRecvAndMethodName(packageInfo, recvName, funcName)
 	if !ok {
 		return nil, false
@@ -133,10 +133,10 @@ func getFuncDeclResultTypes(packageInfo *loader.PackageInfo, recvName, funcName 
 	results := funcDecl.Type.Results.List
 	for _, result := range results {
 		if typeIdent, ok := result.Type.(*ast.Ident); ok {
-			types = append(types, typeIdent.Name)
+			typeNames = append(typeNames, typeIdent.Name)
 		}
 	}
-	return types, true
+	return typeNames, true
 }
 
 func getFuncDeclByRecvAndMethodName(packageInfo *loader.PackageInfo, recvName, methodName string) (*ast.FuncDecl, bool) {
@@ -196,9 +196,12 @@ func getFuncDecl(packageInfo *loader.PackageInfo, f func(decl *ast.FuncDecl) boo
 		panic("packageInfo.Files is nil")
 	}
 	for _, file := range packageInfo.Files {
-		ast.FileExports(file)
 		for _, decl := range file.Decls {
 			if funcDecl, ok := decl.(*ast.FuncDecl); ok {
+				if !ast.IsExported(funcDecl.Name.Name) {
+					continue
+				}
+
 				if f(funcDecl) {
 					return funcDecl, true
 				}

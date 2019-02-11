@@ -29,7 +29,6 @@ var mustifyCmd = &cobra.Command{
 					continue
 				}
 
-				newDeclMap := map[string]ast.Decl{}
 				var newDecls []ast.Decl
 				for _, decl := range file.Decls {
 					if genDecl, ok := decl.(*ast.GenDecl); ok {
@@ -40,20 +39,19 @@ var mustifyCmd = &cobra.Command{
 					}
 
 					funcDecl, ok := decl.(*ast.FuncDecl)
+					if !ok {
+						panic("unknown decl in " + currentFileName)
+					}
+
 					if !ast.IsExported(funcDecl.Name.Name) {
 						continue
 					}
 
-					fmt.Printf("func: %v, file: %v\n", funcDecl.Name.Name, currentFileName)
 					newDecl, ok := goofyast.ConvertErrorFuncToMustFunc(prog, pkg, funcDecl)
 					if !ok {
 						continue
 					}
-					newDeclMap[newDecl.Name.Name] = newDecl
-				}
-
-				for _, d := range newDeclMap {
-					newDecls = append(newDecls, d)
+					newDecls = append(newDecls, newDecl)
 				}
 				file.Decls = newDecls
 

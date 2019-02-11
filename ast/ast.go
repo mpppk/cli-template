@@ -19,7 +19,7 @@ func NewProgram(fileName string) (*loader.Program, error) {
 		Fset:       token.NewFileSet(),
 		ParserMode: parser.ParseComments}
 	dirPath := filepath.Dir(fileName)
-	packages, err := parser.ParseDir(lo.Fset, dirPath, nil, parser.ParseComments)
+	packages, err := parser.ParseDir(lo.Fset, dirPath, nil, parser.Mode(0))
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to parse dir: "+dirPath)
 	}
