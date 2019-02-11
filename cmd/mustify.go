@@ -5,27 +5,49 @@ import (
 	"go/format"
 	"go/token"
 	"os"
+	"path/filepath"
 
 	goofyast "github.com/mpppk/goofy/ast"
 	"github.com/spf13/cobra"
 )
 
-var fileName *string
+var filePath *string
 var outFilePath *string
 var mustifyCmd = &cobra.Command{
 	Use:   "mustify",
 	Short: "A brief description of your command",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
-		prog, err := goofyast.NewProgram(*fileName)
+		absFilePath, err := filepath.Abs(*filePath)
+		if err != nil {
+			panic(err)
+		}
+
+		if *outFilePath == "" {
+			base := filepath.Base(*filePath)
+			o := filepath.Join(filepath.Dir(*filePath), "must-"+base)
+			outFilePath = &o
+		}
+
+		absOutFilePath, err := filepath.Abs(*outFilePath)
+		if err != nil {
+			panic(err)
+		}
+
+		prog, err := goofyast.NewProgram(*filePath)
 		if err != nil {
 			panic(err)
 		}
 
 		for _, pkg := range prog.Created {
 			for i, file := range pkg.Files {
-				currentFileName := prog.Fset.File(pkg.Files[i].Pos()).Name()
-				if currentFileName != *fileName {
+				currentFilePath := prog.Fset.File(pkg.Files[i].Pos()).Name()
+				absCurrentFilePath, err := filepath.Abs(currentFilePath)
+				if err != nil {
+					panic(err)
+				}
+
+				if absFilePath != absCurrentFilePath {
 					continue
 				}
 
@@ -40,7 +62,7 @@ var mustifyCmd = &cobra.Command{
 
 					funcDecl, ok := decl.(*ast.FuncDecl)
 					if !ok {
-						panic("unknown decl in " + currentFileName)
+						panic("unknown decl in " + currentFilePath)
 					}
 
 					if !ast.IsExported(funcDecl.Name.Name) {
@@ -55,7 +77,7 @@ var mustifyCmd = &cobra.Command{
 				}
 				file.Decls = newDecls
 
-				f, err := os.Create(*outFilePath)
+				f, err := os.Create(absOutFilePath)
 				if err != nil {
 					panic(err)
 				}
@@ -75,6 +97,6 @@ var mustifyCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(mustifyCmd)
-	fileName = mustifyCmd.Flags().String("file", "", "target file path")
-	outFilePath = mustifyCmd.Flags().String("out", "must-"+*fileName, "file path to save output")
+	filePath = mustifyCmd.Flags().String("file", "", "target file path")
+	outFilePath = mustifyCmd.Flags().String("out", "", "file path to save output")
 }
