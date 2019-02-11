@@ -78,11 +78,17 @@ func replaceReturnStmtByPanicIfErrorExist(orgProg *loader.Program, currentPkg *l
 			}
 			var lhs []string
 			for range typeNames {
-				lhs = append(lhs, "_")
+				tempValueName := getAvailableValueName(currentPkg.Pkg, "v", lastReturnResultCallExpr.Pos())
+				lhs = append(lhs, tempValueName)
 			}
 
 			tempErrValueName := getAvailableValueName(currentPkg.Pkg, "err", lastReturnResultCallExpr.Pos())
 			lhs[len(lhs)-1] = tempErrValueName
+
+			for _, lh := range lhs[:len(lhs)-1] {
+				returnStmt.Results = append(returnStmt.Results, ast.NewIdent(lh))
+			}
+
 			assignStmt := generateAssignStmt(lhs, lastReturnResultCallExpr)
 			panicIfErrExistIfStmt := generatePanicIfErrorExistStmtAst(tempErrValueName)
 			cr.InsertBefore(assignStmt)
