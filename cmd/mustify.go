@@ -58,9 +58,13 @@ var mustifyCmd = &cobra.Command{
 				f, err := os.Create(fmt.Sprintf("must-%v", currentFileName))
 				if err != nil {
 					panic(err)
-					// FIXME Openエラー処理
 				}
-				defer f.Close() // FIXME error handling
+
+				defer func() {
+					if err := f.Close(); err != nil {
+						panic(err)
+					}
+				}()
 				if err := format.Node(f, token.NewFileSet(), file); err != nil {
 					panic(err)
 				}
