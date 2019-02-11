@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"fmt"
 	"go/ast"
 	"go/format"
 	"go/token"
@@ -12,6 +11,7 @@ import (
 )
 
 var fileName *string
+var outFilePath *string
 var mustifyCmd = &cobra.Command{
 	Use:   "mustify",
 	Short: "A brief description of your command",
@@ -55,7 +55,7 @@ var mustifyCmd = &cobra.Command{
 				}
 				file.Decls = newDecls
 
-				f, err := os.Create(fmt.Sprintf("must-%v", currentFileName))
+				f, err := os.Create(*outFilePath)
 				if err != nil {
 					panic(err)
 				}
@@ -76,4 +76,5 @@ var mustifyCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(mustifyCmd)
 	fileName = mustifyCmd.Flags().String("file", "", "target file path")
+	outFilePath = mustifyCmd.Flags().String("out", "must-"+*fileName, "file path to save output")
 }
