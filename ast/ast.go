@@ -57,7 +57,7 @@ func GenerateErrorFuncWrapper(currentPkg *loader.PackageInfo, orgFuncDecl *ast.F
 	results := getFuncDeclResults(funcDecl)
 	funcDecl.Type.Results.List = funcDecl.Type.Results.List[:len(funcDecl.Type.Results.List)-1]
 
-	wrappedCallExpr := generateCallExpr(funcDecl.Name.Name, getFuncDeclParamNames(funcDecl))
+	wrappedCallExpr := generateCallExpr(extractRecvName(funcDecl), funcDecl.Name.Name, getFuncDeclParamNames(funcDecl))
 	var lhs []string
 	for _, result := range results {
 		for _, name := range result.Names {
@@ -173,4 +173,15 @@ func getAvailableValueName(currentPkg *types.Package, valName string, pos token.
 		cnt++
 		valNameWithNumber = fmt.Sprintf("%v%v", valName, cnt)
 	}
+}
+
+func extractRecvName(funcDecl *ast.FuncDecl) string {
+	if funcDecl.Recv == nil || len(funcDecl.Recv.List) <= 0 {
+		return ""
+	}
+	names := funcDecl.Recv.List[0].Names
+	if len(names) <= 0 {
+		panic(fmt.Sprintf("unexpected recv names: %v from %v", names, funcDecl.Name.Name))
+	}
+	return names[0].Name
 }

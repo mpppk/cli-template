@@ -59,7 +59,7 @@ func generatePanicIfErrorExistStmtAst(errValName string) *ast.IfStmt {
 	}
 }
 
-func generateCallExpr(funcName string, argNames []string) *ast.CallExpr {
+func generateCallExpr(recvName, funcName string, argNames []string) *ast.CallExpr {
 	var args []ast.Expr
 	for _, argName := range argNames {
 		args = append(args, &ast.Ident{
@@ -67,10 +67,18 @@ func generateCallExpr(funcName string, argNames []string) *ast.CallExpr {
 		})
 	}
 
-	return &ast.CallExpr{
-		Fun: &ast.Ident{
-			Name: funcName,
-		},
+	funcNameIdent := &ast.Ident{Name: funcName}
+	callExpr := &ast.CallExpr{
 		Args: args,
 	}
+
+	if recvName == "" {
+		callExpr.Fun = funcNameIdent
+		return callExpr
+	}
+	callExpr.Fun = &ast.SelectorExpr{
+		X:   &ast.Ident{Name: recvName},
+		Sel: funcNameIdent,
+	}
+	return callExpr
 }
