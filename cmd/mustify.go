@@ -69,7 +69,8 @@ var mustifyCmd = &cobra.Command{
 						continue
 					}
 
-					newDecl, ok := goofyast.ConvertErrorFuncToMustFunc(prog, pkg, funcDecl)
+					newDecl, ok := goofyast.GenerateErrorFuncWrapper(pkg, funcDecl)
+					//newDecl, ok := goofyast.ConvertErrorFuncToMustFunc(prog, pkg, funcDecl)
 					if !ok {
 						continue
 					}

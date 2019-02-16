@@ -58,3 +58,19 @@ func generatePanicIfErrorExistStmtAst(errValName string) *ast.IfStmt {
 		Else: nil,
 	}
 }
+
+func generateCallExpr(funcName string, argNames []string) *ast.CallExpr {
+	var args []ast.Expr
+	for _, argName := range argNames {
+		args = append(args, &ast.Ident{
+			Name: argName,
+		})
+	}
+
+	return &ast.CallExpr{
+		Fun: &ast.Ident{
+			Name: funcName,
+		},
+		Args: args,
+	}
+}

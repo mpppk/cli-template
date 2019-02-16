@@ -15,7 +15,7 @@ import (
 )
 
 func NewProgram(fileName string) (*loader.Program, error) {
-	lo := loader.Config{
+	lo := &loader.Config{
 		Fset:       token.NewFileSet(),
 		ParserMode: parser.ParseComments}
 	dirPath := filepath.Dir(fileName)
@@ -31,6 +31,7 @@ func NewProgram(fileName string) (*loader.Program, error) {
 		}
 	}
 
+	//lo.Create
 	lo.CreateFromFiles("main", files...)
 	return lo.Load()
 }
@@ -43,6 +44,44 @@ func ConvertErrorFuncToMustFunc(prog *loader.Program, currentPkg *loader.Package
 	results := funcDecl.Type.Results.List
 	funcDecl.Type.Results.List = results[:len(results)-1]
 	replaceReturnStmtByPanicIfErrorExist(prog, currentPkg, funcDecl)
+	addPrefixToFunc(funcDecl, "Must")
+	return funcDecl, true
+}
+
+func GenerateErrorFuncWrapper(currentPkg *loader.PackageInfo, orgFuncDecl *ast.FuncDecl) (*ast.FuncDecl, bool) {
+	funcDecl := astcopy.FuncDecl(orgFuncDecl)
+	if !IsErrorFunc(funcDecl) {
+		return nil, false
+	}
+
+	results := getFuncDeclResults(funcDecl)
+	funcDecl.Type.Results.List = funcDecl.Type.Results.List[:len(funcDecl.Type.Results.List)-1]
+
+	wrappedCallExpr := generateCallExpr(funcDecl.Name.Name, getFuncDeclParamNames(funcDecl))
+	var lhs []string
+	for _, result := range results {
+		for _, name := range result.Names {
+			lhs = append(lhs, name.Name)
+		}
+	}
+
+	if len(lhs) == 0 {
+		for range results {
+			tempValueName := getAvailableValueName(currentPkg.Pkg, "v", funcDecl.Body.Pos())
+			lhs = append(lhs, tempValueName)
+		}
+
+		tempErrValueName := getAvailableValueName(currentPkg.Pkg, "err", funcDecl.Body.Pos())
+		lhs[len(lhs)-1] = tempErrValueName
+	}
+
+	funcDecl.Body = &ast.BlockStmt{
+		List: []ast.Stmt{
+			generateAssignStmt(lhs, wrappedCallExpr),
+			generatePanicIfErrorExistStmtAst(lhs[len(lhs)-1]),
+			&ast.ReturnStmt{Results: identsToExprs(newIdents(lhs[:len(lhs)-1]))},
+		},
+	}
 	addPrefixToFunc(funcDecl, "Must")
 	return funcDecl, true
 }
@@ -99,6 +138,22 @@ func replaceReturnStmtByPanicIfErrorExist(orgProg *loader.Program, currentPkg *l
 	}, nil)
 	newFuncDecl := newFuncDeclNode.(*ast.FuncDecl)
 	return newFuncDecl
+}
+
+func identsToExprs(idents []*ast.Ident) (exprs []ast.Expr) {
+	for _, ident := range idents {
+		exprs = append(exprs, ast.Expr(ident))
+	}
+	return
+}
+
+func newIdents(identNames []string) (idents []*ast.Ident) {
+	for _, identName := range identNames {
+		idents = append(idents, &ast.Ident{
+			Name: identName,
+		})
+	}
+	return
 }
 
 func getAvailableValueName(currentPkg *types.Package, valName string, pos token.Pos) string {

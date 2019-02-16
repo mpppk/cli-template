@@ -188,6 +188,24 @@ func getFuncDeclByRecvAndMethodName(packageInfo *loader.PackageInfo, recvName, m
 //	//return nil, false
 //}
 
+func getFuncDeclResults(funcDecl *ast.FuncDecl) (newResults []*ast.Field) {
+	results := funcDecl.Type.Results.List
+	for _, result := range results {
+		newResults = append(newResults, result)
+	}
+	return
+}
+
+func getFuncDeclParamNames(funcDecl *ast.FuncDecl) (paramNames []string) {
+	list := funcDecl.Type.Params.List
+	for _, v := range list {
+		for _, name := range v.Names {
+			paramNames = append(paramNames, name.Name)
+		}
+	}
+	return
+}
+
 func getFuncDecl(packageInfo *loader.PackageInfo, f func(decl *ast.FuncDecl) bool) (*ast.FuncDecl, bool) {
 	if packageInfo == nil {
 		panic("packageInfo is nil")
