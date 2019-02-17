@@ -31,7 +31,6 @@ func NewProgram(fileName string) (*loader.Program, error) {
 		}
 	}
 
-	//lo.Create
 	lo.CreateFromFiles("main", files...)
 	return lo.Load()
 }
@@ -57,7 +56,7 @@ func GenerateErrorFuncWrapper(currentPkg *loader.PackageInfo, orgFuncDecl *ast.F
 	results := getFuncDeclResults(funcDecl)
 	funcDecl.Type.Results.List = funcDecl.Type.Results.List[:len(funcDecl.Type.Results.List)-1]
 
-	wrappedCallExpr := generateCallExpr(extractRecvName(funcDecl), funcDecl.Name.Name, getFuncDeclParamNames(funcDecl))
+	wrappedCallExpr := generateCallExpr(extractRecvName(funcDecl), funcDecl.Name.Name, funcDecl.Type.Params.List)
 	var lhs []string
 	for _, result := range results {
 		for _, name := range result.Names {
