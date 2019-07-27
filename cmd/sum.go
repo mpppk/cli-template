@@ -1,21 +1,22 @@
 package cmd
 
 import (
+	"strconv"
+
 	"github.com/mpppk/cli-template/lib"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"strconv"
 )
 
 var sumCmd = &cobra.Command{
 	Use:   "sum",
 	Short: "print sum of arguments",
-	Long: ``,
-	Args: cobra.MinimumNArgs(2),
+	Long:  ``,
+	Args:  cobra.MinimumNArgs(2),
 	PreRunE: func(cmd *cobra.Command, args []string) error {
 		for _, arg := range args {
 			if _, err := strconv.Atoi(arg); err != nil {
-				return errors.Wrapf(err, "failed to convert args to int: ", arg)
+				return errors.Wrapf(err, "failed to convert args to int: %s", arg)
 			}
 		}
 		return nil
