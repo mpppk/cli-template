@@ -17,3 +17,7 @@ func newVersionCmd() (*cobra.Command, error) {
 	}
 	return cmd, nil
 }
+
+func init() {
+	cmdGenerators = append(cmdGenerators, newVersionCmd)
+}

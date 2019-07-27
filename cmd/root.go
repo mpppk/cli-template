@@ -11,29 +11,26 @@ import (
 
 var cfgFile string
 
+type cmdGenerator func() (*cobra.Command, error)
+
+var cmdGenerators []cmdGenerator
+
 func NewRootCmd() (*cobra.Command, error) {
 	var cmd = &cobra.Command{
 		Use:   "cli-template",
 		Short: "cli-template",
 	}
 	cmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cli-template.yaml)")
-	sumCmd, err := newSumCmd()
-	if err != nil {
-		return nil, err
-	}
-	cmd.AddCommand(sumCmd)
 
-	selfUpdateCmd, err := newSelfUpdateCmd()
-	if err != nil {
-		return nil, err
+	var subCmds []*cobra.Command
+	for _, cmdGen := range cmdGenerators {
+		subCmd, err := cmdGen()
+		if err != nil {
+			return nil, err
+		}
+		subCmds = append(subCmds, subCmd)
 	}
-	cmd.AddCommand(selfUpdateCmd)
-
-	versionCmd, err := newVersionCmd()
-	cmd.AddCommand(versionCmd)
-	if err != nil {
-		return nil, err
-	}
+	cmd.AddCommand(subCmds...)
 	return cmd, nil
 }
 

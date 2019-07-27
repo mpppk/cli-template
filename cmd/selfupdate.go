@@ -8,7 +8,7 @@ import (
 func newSelfUpdateCmd() (*cobra.Command, error) {
 	cmd := &cobra.Command{
 		Use:   "selfupdate",
-		Short: "update cli-template",
+		Short: "Update cli-template",
 		//Long: `Update cli-template`,
 		Run: func(cmd *cobra.Command, args []string) {
 			updated, err := lib.DoSelfUpdate()
@@ -24,4 +24,8 @@ func newSelfUpdateCmd() (*cobra.Command, error) {
 		},
 	}
 	return cmd, nil
+}
+
+func init() {
+	cmdGenerators = append(cmdGenerators, newSelfUpdateCmd)
 }

@@ -23,7 +23,7 @@ type config struct {
 func newSumCmd() (*cobra.Command, error) {
 	cmd := &cobra.Command{
 		Use:   "sum",
-		Short: "print sum of arguments",
+		Short: "Print sum of arguments",
 		Long:  ``,
 		Args:  cobra.MinimumNArgs(2),
 		PreRunE: func(cmd *cobra.Command, args []string) error {
@@ -59,4 +59,8 @@ func newSumCmd() (*cobra.Command, error) {
 		return nil, err
 	}
 	return cmd, nil
+}
+
+func init() {
+	cmdGenerators = append(cmdGenerators, newSumCmd)
 }
