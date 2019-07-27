@@ -3,10 +3,22 @@ package cmd
 import (
 	"strconv"
 
+	"github.com/spf13/viper"
+
 	"github.com/mpppk/cli-template/lib"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
+
+var normFlag = &lib.BoolFlagConfig{
+	Name:  "norm",
+	Value: false,
+	Usage: "calc L1 norm instead of sum",
+}
+
+type config struct {
+	Norm bool
+}
 
 var sumCmd = &cobra.Command{
 	Use:   "sum",
@@ -22,11 +34,30 @@ var sumCmd = &cobra.Command{
 		return nil
 	},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cmd.Println(lib.SumFromString(args))
+		var conf config
+		if err := viper.Unmarshal(&conf); err != nil {
+			return errors.Wrap(err, "failed to unmarshal config from viper")
+		}
+
+		numbers, err := lib.ConvertStringSliceToIntSlice(args)
+		if err != nil {
+			return err
+		}
+
+		var res int
+		if conf.Norm {
+			res = lib.L1Norm(numbers)
+		} else {
+			res = lib.Sum(numbers)
+		}
+		cmd.Println(res)
 		return nil
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(sumCmd)
+	if err := lib.RegisterBoolFlag(sumCmd, normFlag); err != nil {
+		panic(err)
+	}
 }
