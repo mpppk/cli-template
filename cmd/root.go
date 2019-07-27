@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mpppk/cli-template/lib"
+
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -16,11 +18,22 @@ type cmdGenerator func() (*cobra.Command, error)
 var cmdGenerators []cmdGenerator
 
 func NewRootCmd() (*cobra.Command, error) {
-	var cmd = &cobra.Command{
+	cmd := &cobra.Command{
 		Use:   "cli-template",
 		Short: "cli-template",
 	}
-	cmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cli-template.yaml)")
+
+	configFlag := &lib.StringFlagConfig{
+		Flag: &lib.Flag{
+			Name:         "config",
+			IsPersistent: true,
+			Usage:        "config file (default is $HOME/.cli-template.yaml)",
+		},
+	}
+
+	if err := lib.RegisterStringFlag(cmd, configFlag); err != nil {
+		return nil, err
+	}
 
 	var subCmds []*cobra.Command
 	for _, cmdGen := range cmdGenerators {

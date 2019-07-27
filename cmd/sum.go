@@ -10,17 +10,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var normFlag = &lib.BoolFlagConfig{
-	Name:  "norm",
-	Value: false,
-	Usage: "calc L1 norm instead of sum",
-}
-
 type config struct {
 	Norm bool
 }
 
 func newSumCmd() (*cobra.Command, error) {
+	normFlag := &lib.BoolFlagConfig{
+		Flag: &lib.Flag{
+			Name:  "norm",
+			Usage: "Calc L1 norm instead of sum",
+		},
+		Value: false,
+	}
+
 	cmd := &cobra.Command{
 		Use:   "sum",
 		Short: "Print sum of arguments",
