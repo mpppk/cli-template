@@ -1,9 +1,7 @@
 defaults: &defaults
   docker:
     - image: circleci/golang:1.12
-  working_directory: {{ .Environment.HOME }}/repo
   environment:
-    GOPATH: {{ .Environment.HOME }}/go
     GO111MODULE: "on"
 
 version: 2
@@ -14,13 +12,13 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-module-cache-v1-{{ checksum "{{ .Environment.HOME }}/repo/go.sum" }}
+            - go-module-cache-v1-{{ checksum "~/project/go.sum" }}
             - go-module-cache-v1-
       - run: go mod download
       - save_cache:
-          key: go-module-cache-v1-{{ checksum "{{ .Environment.HOME }}/repo/go.sum" }}
+          key: go-module-cache-v1-{{ checksum "~/project/go.sum" }}
           paths:
-            - {{ .Environment.HOME }}/go/pkg/mod/cache
+            - ~/go/pkg/mod/cache
       - run: make build
       - run: make test
       - run: make codecov
@@ -30,7 +28,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - go-module-cache-v1-{{ checksum "{{ .Environment.HOME }}/repo/go.sum" }}
+            - go-module-cache-v1-{{ checksum "~/project/go.sum" }}
             - go-module-cache-v1-
       - run: curl -sL https://git.io/goreleaser | bash
 
