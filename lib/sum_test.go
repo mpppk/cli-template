@@ -1,6 +1,8 @@
 package lib
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestSum(t *testing.T) {
 	type args struct {
@@ -14,9 +16,16 @@ func TestSum(t *testing.T) {
 		{
 			name: "return sum of numbers",
 			args: args{
-				numbers: []int{1,2,3},
+				numbers: []int{1, 2, 3},
 			},
 			wantSum: 6,
+		},
+		{
+			name: "return sum of numbers",
+			args: args{
+				numbers: []int{1, -2, 3},
+			},
+			wantSum: 2,
 		},
 	}
 	for _, tt := range tests {
@@ -64,6 +73,39 @@ func TestSumFromString(t *testing.T) {
 			}
 			if gotSum != tt.wantSum {
 				t.Errorf("SumFromString() = %v, want %v", gotSum, tt.wantSum)
+			}
+		})
+	}
+}
+
+func TestL1Norm(t *testing.T) {
+	type args struct {
+		numbers []int
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantSum int
+	}{
+		{
+			name: "return sum of numbers",
+			args: args{
+				numbers: []int{1, 2, 3},
+			},
+			wantSum: 6,
+		},
+		{
+			name: "return sum of numbers",
+			args: args{
+				numbers: []int{1, -2, 3},
+			},
+			wantSum: 6,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotSum := L1Norm(tt.args.numbers); gotSum != tt.wantSum {
+				t.Errorf("Sum() = %v, want %v", gotSum, tt.wantSum)
 			}
 		})
 	}
