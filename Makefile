@@ -1,23 +1,11 @@
 SHELL = /bin/bash
 
-.PHONY: deps
-deps:
-	dep ensure -v
-
-.PHONY: deps-ci
-deps-ci:
-	dep ensure -v -vendor-only=true
-
-.PHONY: setup
-setup:
-	go get github.com/golang/dep/cmd/dep
-
 .PHONY: lint
-lint: deps-ci
+lint:
 	gometalinter
 
 .PHONY: test
-test: deps-ci
+test:
 	go test ./...
 
 .PHONY: integration-test
@@ -25,23 +13,23 @@ integration-test: deps
 	go test -tags=integration ./...
 
 .PHONY: coverage
-coverage: deps-ci
+coverage:
 	go test -race -coverprofile=coverage.txt -covermode=atomic ./...
 
 .PHONY: codecov
-codecov: deps-ci coverage
+codecov:  coverage
 	bash <(curl -s https://codecov.io/bash)
 
 .PHONY: build
-build: deps-ci
+build:
 	go build
 
 .PHONY: cross-build-snapshot
-cross-build: deps-ci
+cross-build:
 	goreleaser --rm-dist --snapshot
 
 .PHONY: install
-install: deps-ci
+install:
 	go install
 
 .PHONY: circleci

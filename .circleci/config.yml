@@ -1,7 +1,8 @@
 defaults: &defaults
   docker:
-    - image: circleci/golang:1.11
-  working_directory: /go/src/github.com/mpppk/cli-template
+    - image: circleci/golang:1.12
+  environment:
+    GO111MODULE: "on"
 
 version: 2
 jobs:
@@ -10,23 +11,25 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: vendor-{{ checksum "Gopkg.lock" }}
-
-      # specify any bash command here prefixed with `run: `
-      - run: make setup
+          keys:
+            - go-module-cache-v1-{{ checksum "~/project/go.sum" }}
+            - go-module-cache-v1-
+      - run: go mod download
+      - save_cache:
+          key: go-module-cache-v1-{{ checksum "~/project/go.sum" }}
+          paths:
+            - ~/go/pkg/mod/cache
       - run: make build
       - run: make test
       - run: make codecov
-      - save_cache:
-          key: vendor-{{ checksum "Gopkg.lock" }}
-          paths:
-          - vendor
   release:
     <<: *defaults
     steps:
       - checkout
       - restore_cache:
-          key: vendor-{{ checksum "Gopkg.lock" }}
+          keys:
+            - go-module-cache-v1-{{ checksum "~/project/go.sum" }}
+            - go-module-cache-v1-
       - run: curl -sL https://git.io/goreleaser | bash
 
 workflows:
