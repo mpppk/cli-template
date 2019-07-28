@@ -1,9 +1,11 @@
-package cmd
+package cmd_test
 
 import (
 	"bytes"
 	"strings"
 	"testing"
+
+	"github.com/mpppk/cli-template/cmd"
 )
 
 func TestSum(t *testing.T) {
@@ -17,15 +19,15 @@ func TestSum(t *testing.T) {
 
 	for _, c := range cases {
 		buf := new(bytes.Buffer)
-		cmd, err := NewRootCmd()
+		rootCmd, err := cmd.NewRootCmd()
 		if err != nil {
-			t.Errorf("failed to create root cmd: %s", err)
+			t.Errorf("failed to create rootCmd: %s", err)
 		}
-		cmd.SetOut(buf)
+		rootCmd.SetOut(buf)
 		cmdArgs := strings.Split(c.command, " ")
-		cmd.SetArgs(cmdArgs)
-		if err := cmd.Execute(); err != nil {
-			t.Errorf("failed to execute cmd: %s", err)
+		rootCmd.SetArgs(cmdArgs)
+		if err := rootCmd.Execute(); err != nil {
+			t.Errorf("failed to execute rootCmd: %s", err)
 		}
 
 		get := buf.String()
