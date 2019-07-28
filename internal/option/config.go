@@ -1,4 +1,4 @@
-package lib
+package option
 
 import (
 	"github.com/spf13/cobra"
@@ -13,12 +13,12 @@ type Flag struct {
 	Usage        string
 }
 
-type StringFlagConfig struct {
+type StringFlag struct {
 	*Flag
 	Value string
 }
 
-type BoolFlagConfig struct {
+type BoolFlag struct {
 	*Flag
 	Value bool
 }
@@ -31,7 +31,7 @@ func getFlagSet(cmd *cobra.Command, flagConfig *Flag) (flagSet *pflag.FlagSet) {
 	}
 }
 
-func RegisterStringFlag(cmd *cobra.Command, flagConfig *StringFlagConfig) error {
+func RegisterStringFlag(cmd *cobra.Command, flagConfig *StringFlag) error {
 	flagSet := getFlagSet(cmd, flagConfig.Flag)
 	if flagConfig.Shorthand == "" {
 		flagSet.String(flagConfig.Name, flagConfig.Value, flagConfig.Usage)
@@ -45,7 +45,7 @@ func RegisterStringFlag(cmd *cobra.Command, flagConfig *StringFlagConfig) error 
 	return nil
 }
 
-func RegisterBoolFlag(cmd *cobra.Command, flagConfig *BoolFlagConfig) error {
+func RegisterBoolFlag(cmd *cobra.Command, flagConfig *BoolFlag) error {
 	flagSet := getFlagSet(cmd, flagConfig.Flag)
 	if flagConfig.Shorthand == "" {
 		flagSet.Bool(flagConfig.Name, flagConfig.Value, flagConfig.Usage)

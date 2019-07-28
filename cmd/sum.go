@@ -1,13 +1,15 @@
 package cmd
 
 import (
+	"github.com/mpppk/cli-template/internal/option"
+	"github.com/mpppk/cli-template/pkg/sum"
+	"github.com/mpppk/cli-template/pkg/util"
 	"strconv"
 
 	"golang.org/x/xerrors"
 
 	"github.com/spf13/viper"
 
-	"github.com/mpppk/cli-template/lib"
 	"github.com/spf13/cobra"
 )
 
@@ -16,8 +18,8 @@ type config struct {
 }
 
 func newSumCmd() (*cobra.Command, error) {
-	normFlag := &lib.BoolFlagConfig{
-		Flag: &lib.Flag{
+	normFlag := &option.BoolFlag{
+		Flag: &option.Flag{
 			Name:  "norm",
 			Usage: "Calc L1 norm instead of sum",
 		},
@@ -44,22 +46,22 @@ func newSumCmd() (*cobra.Command, error) {
 				return xerrors.Errorf("failed to unmarshal config from viper: %w", err)
 			}
 
-			numbers, err := lib.ConvertStringSliceToIntSlice(args)
+			numbers, err := util.ConvertStringSliceToIntSlice(args)
 			if err != nil {
 				return err
 			}
 
 			var res int
 			if conf.Norm {
-				res = lib.L1Norm(numbers)
+				res = sum.L1Norm(numbers)
 			} else {
-				res = lib.Sum(numbers)
+				res = sum.Sum(numbers)
 			}
 			cmd.Println(res)
 			return nil
 		},
 	}
-	if err := lib.RegisterBoolFlag(cmd, normFlag); err != nil {
+	if err := option.RegisterBoolFlag(cmd, normFlag); err != nil {
 		return nil, err
 	}
 	return cmd, nil

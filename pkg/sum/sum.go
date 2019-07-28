@@ -1,6 +1,9 @@
-package lib
+package sum
 
-import "math"
+import (
+	"github.com/mpppk/cli-template/pkg/util"
+	"math"
+)
 
 func Sum(numbers []int) (sum int) {
 	for _, number := range numbers {
@@ -18,7 +21,7 @@ func L1Norm(numbers []int) (l1norm int) {
 }
 
 func SumFromString(stringNumbers []string) (sum int, err error) {
-	numbers, err := ConvertStringSliceToIntSlice(stringNumbers)
+	numbers, err := util.ConvertStringSliceToIntSlice(stringNumbers)
 	if err != nil {
 		return 0, err
 	}

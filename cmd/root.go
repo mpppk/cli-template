@@ -2,11 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/mpppk/cli-template/internal/option"
 	"os"
 
-	"github.com/mpppk/cli-template/lib"
-
-	homedir "github.com/mitchellh/go-homedir"
+	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -23,15 +22,15 @@ func NewRootCmd() (*cobra.Command, error) {
 		Short: "cli-template",
 	}
 
-	configFlag := &lib.StringFlagConfig{
-		Flag: &lib.Flag{
+	configFlag := &option.StringFlag{
+		Flag: &option.Flag{
 			Name:         "config",
 			IsPersistent: true,
 			Usage:        "config file (default is $HOME/.cli-template.yaml)",
 		},
 	}
 
-	if err := lib.RegisterStringFlag(cmd, configFlag); err != nil {
+	if err := option.RegisterStringFlag(cmd, configFlag); err != nil {
 		return nil, err
 	}
 

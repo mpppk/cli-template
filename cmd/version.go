@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"github.com/mpppk/cli-template/lib"
-
+	"github.com/mpppk/cli-template/internal/selfupdate"
 	"github.com/spf13/cobra"
 )
 
@@ -12,7 +11,7 @@ func newVersionCmd() (*cobra.Command, error) {
 		Short: "Show version",
 		//Long: ``,
 		Run: func(cmd *cobra.Command, args []string) {
-			cmd.Println(lib.Version)
+			cmd.Println(selfupdate.Version)
 		},
 	}
 	return cmd, nil
