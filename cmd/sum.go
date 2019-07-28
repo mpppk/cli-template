@@ -32,7 +32,7 @@ func newOutFlag() *option.StringFlag {
 	}
 }
 
-func newSumCmd() (*cobra.Command, error) {
+func newSumCmd(fs afero.Fs) (*cobra.Command, error) {
 	cmd := &cobra.Command{
 		Use:     "sum",
 		Short:   "Print sum of arguments",
@@ -67,8 +67,6 @@ func newSumCmd() (*cobra.Command, error) {
 
 			if conf.HasOut() {
 				s := strconv.Itoa(res)
-				cmd.Println("s", s)
-				fs := afero.NewOsFs()
 				if err := afero.WriteFile(fs,conf.Out, []byte(s), 777); err != nil {
 					return xerrors.Errorf("failed to write file to %s: %w", conf.Out, err)
 				}
