@@ -14,6 +14,8 @@
 ### Setup on GitHub
 Click "Use this template" button on GitHub project page.
 
+![](https://github.com/mpppk/cli-template/wiki/images/template-button.png)
+
 ## Project structure
 * `/cmd` includes golang files which implements command and sub commands.
 * `/pkg` includes golang files which will be used by other projects.
