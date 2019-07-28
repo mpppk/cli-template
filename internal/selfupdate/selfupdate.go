@@ -1,4 +1,4 @@
-package lib
+package selfupdate
 
 import (
 	"github.com/blang/semver"
@@ -9,7 +9,7 @@ import (
 const Version = "1.2.3"
 const slug = "mpppk/cli-template"
 
-func DoSelfUpdate() (bool, error) {
+func Do() (bool, error) {
 	v := semver.MustParse(Version)
 	latest, err := selfupdate.UpdateSelf(v, slug)
 	if err != nil {
