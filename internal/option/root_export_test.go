@@ -1,0 +1,3 @@
+package option
+
+var NewRootCmdConfigFromRawConfig = newRootCmdConfigFromRawConfig

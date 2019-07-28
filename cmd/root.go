@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/mpppk/cli-template/internal/option"
+	"github.com/spf13/afero"
 	"os"
 
 	"github.com/mitchellh/go-homedir"
@@ -12,11 +13,8 @@ import (
 
 var cfgFile string
 
-type cmdGenerator func() (*cobra.Command, error)
 
-var cmdGenerators []cmdGenerator
-
-func NewRootCmd() (*cobra.Command, error) {
+func NewRootCmd(fs afero.Fs) (*cobra.Command, error) {
 	cmd := &cobra.Command{
 		Use:   "cli-template",
 		Short: "cli-template",
@@ -36,7 +34,7 @@ func NewRootCmd() (*cobra.Command, error) {
 
 	var subCmds []*cobra.Command
 	for _, cmdGen := range cmdGenerators {
-		subCmd, err := cmdGen()
+		subCmd, err := cmdGen(fs)
 		if err != nil {
 			return nil, err
 		}
@@ -49,7 +47,7 @@ func NewRootCmd() (*cobra.Command, error) {
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	rootCmd, err := NewRootCmd()
+	rootCmd, err := NewRootCmd(afero.NewOsFs())
 	if err != nil {
 		panic(err)
 	}

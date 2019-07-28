@@ -2,10 +2,11 @@ package cmd
 
 import (
 	"github.com/mpppk/cli-template/internal/selfupdate"
+	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 )
 
-func newVersionCmd() (*cobra.Command, error) {
+func newVersionCmd(fs afero.Fs) (*cobra.Command, error) {
 	cmd := &cobra.Command{
 		Use:   "version",
 		Short: "Show version",
