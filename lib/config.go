@@ -2,33 +2,58 @@ package lib
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
-type StringPFlagConfig struct {
-	Name      string
-	Shorthand string
-	Value     string
-	Usage     string
+type Flag struct {
+	IsPersistent bool
+	Shorthand    string
+	Name         string
+	Usage        string
 }
 
-func RegisterStringPFlag(cmd *cobra.Command, flagConfig *StringPFlagConfig) error {
-	cmd.Flags().StringP(flagConfig.Name, flagConfig.Shorthand, flagConfig.Value, flagConfig.Usage)
-	if err := viper.BindPFlag(flagConfig.Name, cmd.Flags().Lookup(flagConfig.Name)); err != nil {
+type StringFlagConfig struct {
+	*Flag
+	Value string
+}
+
+type BoolFlagConfig struct {
+	*Flag
+	Value bool
+}
+
+func getFlagSet(cmd *cobra.Command, flagConfig *Flag) (flagSet *pflag.FlagSet) {
+	if flagConfig.IsPersistent {
+		return cmd.PersistentFlags()
+	} else {
+		return cmd.Flags()
+	}
+}
+
+func RegisterStringFlag(cmd *cobra.Command, flagConfig *StringFlagConfig) error {
+	flagSet := getFlagSet(cmd, flagConfig.Flag)
+	if flagConfig.Shorthand == "" {
+		flagSet.String(flagConfig.Name, flagConfig.Value, flagConfig.Usage)
+	} else {
+		flagSet.StringP(flagConfig.Name, flagConfig.Shorthand, flagConfig.Value, flagConfig.Usage)
+	}
+
+	if err := viper.BindPFlag(flagConfig.Name, flagSet.Lookup(flagConfig.Name)); err != nil {
 		return err
 	}
 	return nil
 }
 
-type BoolFlagConfig struct {
-	Name  string
-	Value bool
-	Usage string
-}
-
 func RegisterBoolFlag(cmd *cobra.Command, flagConfig *BoolFlagConfig) error {
-	cmd.Flags().Bool(flagConfig.Name, flagConfig.Value, flagConfig.Usage)
-	if err := viper.BindPFlag(flagConfig.Name, cmd.Flags().Lookup(flagConfig.Name)); err != nil {
+	flagSet := getFlagSet(cmd, flagConfig.Flag)
+	if flagConfig.Shorthand == "" {
+		flagSet.Bool(flagConfig.Name, flagConfig.Value, flagConfig.Usage)
+	} else {
+		flagSet.BoolP(flagConfig.Name, flagConfig.Shorthand, flagConfig.Value, flagConfig.Usage)
+	}
+
+	if err := viper.BindPFlag(flagConfig.Name, flagSet.Lookup(flagConfig.Name)); err != nil {
 		return err
 	}
 	return nil

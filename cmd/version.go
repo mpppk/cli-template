@@ -1,21 +1,23 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/mpppk/cli-template/lib"
 
 	"github.com/spf13/cobra"
 )
 
-var versionCmd = &cobra.Command{
-	Use:   "version",
-	Short: "Show version",
-	//Long: ``,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(lib.Version)
-	},
+func newVersionCmd() (*cobra.Command, error) {
+	cmd := &cobra.Command{
+		Use:   "version",
+		Short: "Show version",
+		//Long: ``,
+		Run: func(cmd *cobra.Command, args []string) {
+			cmd.Println(lib.Version)
+		},
+	}
+	return cmd, nil
 }
 
 func init() {
-	rootCmd.AddCommand(versionCmd)
+	cmdGenerators = append(cmdGenerators, newVersionCmd)
 }
