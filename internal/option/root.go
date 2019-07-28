@@ -20,15 +20,18 @@ func NewRootCmdConfigFromViper() (*CmdConfig, error) {
 	if err := conf.validate(); err != nil {
 		return nil, xerrors.Errorf("failed to create root cmd config: %w", err)
 	}
+	return newRootCmdConfigFromRawConfig(conf), nil
+}
 
-	out := conf.Out
-	if conf.Out == DefaultStringValue {
+func newRootCmdConfigFromRawConfig(rawConfig *CmdRawConfig) *CmdConfig {
+	out := rawConfig.Out
+	if rawConfig.Out == DefaultStringValue {
 		out = ""
 	}
 	return &CmdConfig{
-		CmdRawConfig: conf,
+		CmdRawConfig: rawConfig,
 		Out:          out,
-	}, nil
+	}
 }
 
 func (c *CmdConfig) HasOut() bool {
