@@ -25,10 +25,11 @@ func newSumCmd() (*cobra.Command, error) {
 	}
 
 	cmd := &cobra.Command{
-		Use:   "sum",
-		Short: "Print sum of arguments",
-		Long:  ``,
-		Args:  cobra.MinimumNArgs(2),
+		Use:     "sum",
+		Short:   "Print sum of arguments",
+		Long:    ``,
+		Args:    cobra.MinimumNArgs(2),
+		Example: "cli-template sum -- -1 2  ->  1",
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			for _, arg := range args {
 				if _, err := strconv.Atoi(arg); err != nil {
