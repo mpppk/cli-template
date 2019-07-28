@@ -4,28 +4,35 @@ import (
 	"github.com/mpppk/cli-template/internal/option"
 	"github.com/mpppk/cli-template/pkg/sum"
 	"github.com/mpppk/cli-template/pkg/util"
+	"github.com/spf13/afero"
 	"strconv"
 
 	"golang.org/x/xerrors"
 
-	"github.com/spf13/viper"
-
 	"github.com/spf13/cobra"
 )
 
-type config struct {
-	Norm bool
-}
-
-func newSumCmd() (*cobra.Command, error) {
-	normFlag := &option.BoolFlag{
+func newNormFlag() *option.BoolFlag {
+	return &option.BoolFlag{
 		Flag: &option.Flag{
 			Name:  "norm",
 			Usage: "Calc L1 norm instead of sum",
 		},
 		Value: false,
 	}
+}
 
+func newOutFlag() *option.StringFlag {
+	return &option.StringFlag{
+		Flag: &option.Flag{
+			Name:  "out",
+			Usage: "Output file path",
+		},
+		Value: option.DefaultStringValue,
+	}
+}
+
+func newSumCmd() (*cobra.Command, error) {
 	cmd := &cobra.Command{
 		Use:     "sum",
 		Short:   "Print sum of arguments",
@@ -41,9 +48,9 @@ func newSumCmd() (*cobra.Command, error) {
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			var conf config
-			if err := viper.Unmarshal(&conf); err != nil {
-				return xerrors.Errorf("failed to unmarshal config from viper: %w", err)
+			conf, err := option.NewRootCmdConfigFromViper()
+			if err != nil {
+				return err
 			}
 
 			numbers, err := util.ConvertStringSliceToIntSlice(args)
@@ -57,11 +64,25 @@ func newSumCmd() (*cobra.Command, error) {
 			} else {
 				res = sum.Sum(numbers)
 			}
-			cmd.Println(res)
+
+			if conf.HasOut() {
+				s := strconv.Itoa(res)
+				cmd.Println("s", s)
+				fs := afero.NewOsFs()
+				if err := afero.WriteFile(fs,conf.Out, []byte(s), 777); err != nil {
+					return xerrors.Errorf("failed to write file to %s: %w", conf.Out, err)
+				}
+			} else {
+				cmd.Println(res)
+			}
+
 			return nil
 		},
 	}
-	if err := option.RegisterBoolFlag(cmd, normFlag); err != nil {
+	if err := option.RegisterBoolFlag(cmd, newNormFlag()); err != nil {
+		return nil, err
+	}
+	if err := option.RegisterStringFlag(cmd, newOutFlag()); err != nil {
 		return nil, err
 	}
 	return cmd, nil
