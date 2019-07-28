@@ -3,10 +3,11 @@ package cmd
 import (
 	"strconv"
 
+	"golang.org/x/xerrors"
+
 	"github.com/spf13/viper"
 
 	"github.com/mpppk/cli-template/lib"
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
@@ -31,7 +32,7 @@ func newSumCmd() (*cobra.Command, error) {
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			for _, arg := range args {
 				if _, err := strconv.Atoi(arg); err != nil {
-					return errors.Wrapf(err, "failed to convert args to int: %s", arg)
+					return xerrors.Errorf("failed to convert args to int: %s: %w", arg, err)
 				}
 			}
 			return nil
@@ -39,7 +40,7 @@ func newSumCmd() (*cobra.Command, error) {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			var conf config
 			if err := viper.Unmarshal(&conf); err != nil {
-				return errors.Wrap(err, "failed to unmarshal config from viper")
+				return xerrors.Errorf("failed to unmarshal config from viper: %w", err)
 			}
 
 			numbers, err := lib.ConvertStringSliceToIntSlice(args)

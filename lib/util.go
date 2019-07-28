@@ -2,16 +2,17 @@ package lib
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"os"
 	"strconv"
+
+	"golang.org/x/xerrors"
 )
 
 func ConvertStringSliceToIntSlice(stringSlice []string) (intSlice []int, err error) {
 	for _, s := range stringSlice {
 		num, err := strconv.Atoi(s)
 		if err != nil {
-			return nil, errors.Wrap(err, "failed to convert string slice to int slice")
+			return nil, xerrors.Errorf("failed to convert string slice to int slice: %w", err)
 		}
 		intSlice = append(intSlice, num)
 	}
