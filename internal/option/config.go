@@ -1,3 +1,4 @@
+// Package option provides utilities of option handling
 package option
 
 import (
@@ -6,6 +7,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// Flag represents flag which can be specified
 type Flag struct {
 	IsPersistent bool
 	Shorthand    string
@@ -13,11 +15,13 @@ type Flag struct {
 	Usage        string
 }
 
+// StringFlag represents flag which can be specified as string
 type StringFlag struct {
 	*Flag
 	Value string
 }
 
+// BoolFlag represents flag which can be specified as bool
 type BoolFlag struct {
 	*Flag
 	Value bool
@@ -31,6 +35,7 @@ func getFlagSet(cmd *cobra.Command, flagConfig *Flag) (flagSet *pflag.FlagSet) {
 	}
 }
 
+// RegisterStringFlag register string flag to provided cmd and viper
 func RegisterStringFlag(cmd *cobra.Command, flagConfig *StringFlag) error {
 	flagSet := getFlagSet(cmd, flagConfig.Flag)
 	if flagConfig.Shorthand == "" {
@@ -45,6 +50,7 @@ func RegisterStringFlag(cmd *cobra.Command, flagConfig *StringFlag) error {
 	return nil
 }
 
+// RegisterBoolFlag register bool flag to provided cmd and viper
 func RegisterBoolFlag(cmd *cobra.Command, flagConfig *BoolFlag) error {
 	flagSet := getFlagSet(cmd, flagConfig.Flag)
 	if flagConfig.Shorthand == "" {
