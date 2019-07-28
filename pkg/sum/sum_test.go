@@ -2,6 +2,7 @@ package sum_test
 
 import (
 	"fmt"
+	"github.com/mpppk/cli-template/pkg/sum"
 	"github.com/mpppk/cli-template/pkg/util"
 	"io/ioutil"
 	"os"
@@ -11,7 +12,7 @@ import (
 
 func ExampleSum() {
 	numbers := []int{1, -2, 3}
-	fmt.Println(Sum(numbers))
+	fmt.Println(sum.Sum(numbers))
 	// Output:
 	// 2
 }
@@ -42,7 +43,7 @@ func TestSum(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotSum := Sum(tt.args.numbers); gotSum != tt.wantSum {
+			if gotSum := sum.Sum(tt.args.numbers); gotSum != tt.wantSum {
 				t.Errorf("Sum() = %v, want %v", gotSum, tt.wantSum)
 			}
 		})
@@ -60,7 +61,7 @@ func TestSumFromFile(t *testing.T) {
 		wantSum int
 	}
 
-	f, err := os.Open("../testdata/sum.txt")
+	f, err := os.Open("../../testdata/sum.txt")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,7 +92,7 @@ func TestSumFromFile(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotSum := Sum(tt.args.numbers); gotSum != tt.wantSum {
+			if gotSum := sum.Sum(tt.args.numbers); gotSum != tt.wantSum {
 				t.Errorf("Sum() = %v, want %v", gotSum, tt.wantSum)
 			}
 		})
@@ -127,7 +128,7 @@ func TestSumFromString(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotSum, err := SumFromString(tt.args.stringNumbers)
+			gotSum, err := sum.SumFromString(tt.args.stringNumbers)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("SumFromString() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -141,7 +142,7 @@ func TestSumFromString(t *testing.T) {
 
 func ExampleL1Norm() {
 	numbers := []int{1, -2, 3}
-	fmt.Println(L1Norm(numbers))
+	fmt.Println(sum.L1Norm(numbers))
 	// Output:
 	// 6
 }
@@ -172,7 +173,7 @@ func TestL1Norm(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotSum := L1Norm(tt.args.numbers); gotSum != tt.wantSum {
+			if gotSum := sum.L1Norm(tt.args.numbers); gotSum != tt.wantSum {
 				t.Errorf("Sum() = %v, want %v", gotSum, tt.wantSum)
 			}
 		})
