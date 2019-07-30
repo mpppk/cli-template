@@ -1,11 +1,12 @@
 package cmd
 
 import (
+	"strconv"
+
 	"github.com/mpppk/cli-template/internal/option"
 	"github.com/mpppk/cli-template/pkg/sum"
 	"github.com/mpppk/cli-template/pkg/util"
 	"github.com/spf13/afero"
-	"strconv"
 
 	"golang.org/x/xerrors"
 
@@ -48,7 +49,7 @@ func newSumCmd(fs afero.Fs) (*cobra.Command, error) {
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			conf, err := option.NewRootCmdConfigFromViper()
+			conf, err := option.NewSumCmdConfigFromViper()
 			if err != nil {
 				return err
 			}
@@ -67,7 +68,7 @@ func newSumCmd(fs afero.Fs) (*cobra.Command, error) {
 
 			if conf.HasOut() {
 				s := strconv.Itoa(res)
-				if err := afero.WriteFile(fs,conf.Out, []byte(s), 777); err != nil {
+				if err := afero.WriteFile(fs, conf.Out, []byte(s), 777); err != nil {
 					return xerrors.Errorf("failed to write file to %s: %w", conf.Out, err)
 				}
 			} else {

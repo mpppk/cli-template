@@ -1,3 +1,3 @@
 package option
 
-var NewRootCmdConfigFromRawConfig = newRootCmdConfigFromRawConfig
+var NewCmdConfigFromRawConfig = newCmdConfigFromRawConfig
