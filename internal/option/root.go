@@ -1,18 +1,21 @@
 package option
 
 import (
-	"fmt"
 	"github.com/spf13/viper"
 	"golang.org/x/xerrors"
 )
 
 type CmdConfig struct {
-	*CmdRawConfig
-	Out string
+	Toggle bool
 }
 
 func NewRootCmdConfigFromViper() (*CmdConfig, error) {
-	var conf *CmdRawConfig
+	rawConfig, err := newCmdRawConfig()
+	return newCmdConfigFromRawConfig(rawConfig), err
+}
+
+func newCmdRawConfig() (*CmdRawConfig, error) {
+	var conf CmdRawConfig
 	if err := viper.Unmarshal(&conf); err != nil {
 		return nil, xerrors.Errorf("failed to unmarshal config from viper: %w", err)
 	}
@@ -20,32 +23,23 @@ func NewRootCmdConfigFromViper() (*CmdConfig, error) {
 	if err := conf.validate(); err != nil {
 		return nil, xerrors.Errorf("failed to create root cmd config: %w", err)
 	}
-	return newRootCmdConfigFromRawConfig(conf), nil
+	return &conf, nil
 }
 
-func newRootCmdConfigFromRawConfig(rawConfig *CmdRawConfig) *CmdConfig {
-	out := rawConfig.Out
-	if rawConfig.Out == DefaultStringValue {
-		out = ""
-	}
+func newCmdConfigFromRawConfig(rawConfig *CmdRawConfig) *CmdConfig {
 	return &CmdConfig{
-		CmdRawConfig: rawConfig,
-		Out:          out,
+		Toggle: rawConfig.Toggle,
 	}
-}
-
-func (c *CmdConfig) HasOut() bool {
-	return c.CmdRawConfig.Out != DefaultStringValue
 }
 
 type CmdRawConfig struct {
-	Norm bool
-	Out string
+	SumCmdConfig `mapstructure:",squash"`
+	Toggle       bool
 }
 
 func (c *CmdRawConfig) validate() error {
-	if c.Out == "" {
-		return fmt.Errorf("invalid --out flag value is empty")
+	if err := c.SumCmdConfig.validate(); err != nil {
+		return xerrors.Errorf("invalid config parameter is given to SumCmdConfig: %w", err)
 	}
 	return nil
 }

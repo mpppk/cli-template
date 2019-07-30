@@ -2,9 +2,10 @@ package cmd
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/mpppk/cli-template/internal/option"
 	"github.com/spf13/afero"
-	"os"
 
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -13,6 +14,15 @@ import (
 
 var cfgFile string
 
+func newToggleFlag() *option.BoolFlag {
+	return &option.BoolFlag{
+		Flag: &option.Flag{
+			Name:  "toggle",
+			Usage: "Do nothing",
+		},
+		Value: false,
+	}
+}
 
 func NewRootCmd(fs afero.Fs) (*cobra.Command, error) {
 	cmd := &cobra.Command{
@@ -41,6 +51,7 @@ func NewRootCmd(fs afero.Fs) (*cobra.Command, error) {
 		subCmds = append(subCmds, subCmd)
 	}
 	cmd.AddCommand(subCmds...)
+
 	return cmd, nil
 }
 
