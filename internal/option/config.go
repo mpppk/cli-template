@@ -11,17 +11,25 @@ import (
 type Flag struct {
 	IsPersistent bool
 	IsRequired   bool
-	IsDirName    bool
-	IsFileName   bool
 	Shorthand    string
 	Name         string
 	Usage        string
+	ViperName    string
+}
+
+func (f *Flag) getViperName() string {
+	if f.ViperName == "" {
+		return f.Name
+	}
+	return f.ViperName
 }
 
 // StringFlag represents flag which can be specified as string
 type StringFlag struct {
 	*Flag
-	Value string
+	Value      string
+	IsDirName  bool
+	IsFileName bool
 }
 
 // BoolFlag represents flag which can be specified as bool
@@ -47,11 +55,17 @@ func RegisterStringFlag(cmd *cobra.Command, flagConfig *StringFlag) error {
 		flagSet.StringP(flagConfig.Name, flagConfig.Shorthand, flagConfig.Value, flagConfig.Usage)
 	}
 
-	if err := markAttributes(cmd, flagConfig.Flag); err != nil {
+	if err := markAsRequired(cmd, flagConfig.Flag); err != nil {
+		return err
+	}
+	if err := markAsDirName(cmd, flagConfig); err != nil {
+		return err
+	}
+	if err := markAsFileName(cmd, flagConfig); err != nil {
 		return err
 	}
 
-	if err := viper.BindPFlag(flagConfig.Name, flagSet.Lookup(flagConfig.Name)); err != nil {
+	if err := viper.BindPFlag(flagConfig.getViperName(), flagSet.Lookup(flagConfig.Name)); err != nil {
 		return err
 	}
 	return nil
@@ -66,37 +80,24 @@ func RegisterBoolFlag(cmd *cobra.Command, flagConfig *BoolFlag) error {
 		flagSet.BoolP(flagConfig.Name, flagConfig.Shorthand, flagConfig.Value, flagConfig.Usage)
 	}
 
-	if err := markAttributes(cmd, flagConfig.Flag); err != nil {
+	if err := markAsRequired(cmd, flagConfig.Flag); err != nil {
 		return err
 	}
 
-	if err := viper.BindPFlag(flagConfig.Name, flagSet.Lookup(flagConfig.Name)); err != nil {
+	if err := viper.BindPFlag(flagConfig.getViperName(), flagSet.Lookup(flagConfig.Name)); err != nil {
 		return err
 	}
 	return nil
 }
 
-func markAttributes(cmd *cobra.Command, flagConfig *Flag) error {
-	if err := markAsFileName(cmd, flagConfig); err != nil {
-		return err
-	}
-	if err := markAsDirName(cmd, flagConfig); err != nil {
-		return err
-	}
-	if err := markAsRequired(cmd, flagConfig); err != nil {
-		return err
-	}
-	return nil
-}
-
-func markAsFileName(cmd *cobra.Command, flagConfig *Flag) error {
-	if flagConfig.IsFileName {
-		if flagConfig.IsPersistent {
-			if err := cmd.MarkPersistentFlagFilename(flagConfig.Name); err != nil {
+func markAsFileName(cmd *cobra.Command, stringFlag *StringFlag) error {
+	if stringFlag.IsFileName {
+		if stringFlag.IsPersistent {
+			if err := cmd.MarkPersistentFlagFilename(stringFlag.Name); err != nil {
 				return err
 			}
 		} else {
-			if err := cmd.MarkFlagFilename(flagConfig.Name); err != nil {
+			if err := cmd.MarkFlagFilename(stringFlag.Name); err != nil {
 				return err
 			}
 		}
@@ -104,14 +105,14 @@ func markAsFileName(cmd *cobra.Command, flagConfig *Flag) error {
 	return nil
 }
 
-func markAsDirName(cmd *cobra.Command, flagConfig *Flag) error {
-	if flagConfig.IsDirName {
-		if flagConfig.IsPersistent {
-			if err := cmd.MarkPersistentFlagDirname(flagConfig.Name); err != nil {
+func markAsDirName(cmd *cobra.Command, stringFlag *StringFlag) error {
+	if stringFlag.IsDirName {
+		if stringFlag.IsPersistent {
+			if err := cmd.MarkPersistentFlagDirname(stringFlag.Name); err != nil {
 				return err
 			}
 		} else {
-			if err := cmd.MarkFlagDirname(flagConfig.Name); err != nil {
+			if err := cmd.MarkFlagDirname(stringFlag.Name); err != nil {
 				return err
 			}
 		}
