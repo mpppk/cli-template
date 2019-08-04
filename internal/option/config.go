@@ -55,13 +55,7 @@ func RegisterStringFlag(cmd *cobra.Command, flagConfig *StringFlag) error {
 		flagSet.StringP(flagConfig.Name, flagConfig.Shorthand, flagConfig.Value, flagConfig.Usage)
 	}
 
-	if err := markAsRequired(cmd, flagConfig.Flag); err != nil {
-		return err
-	}
-	if err := markAsDirName(cmd, flagConfig); err != nil {
-		return err
-	}
-	if err := markAsFileName(cmd, flagConfig); err != nil {
+	if err := markAttributes(cmd, flagConfig); err != nil {
 		return err
 	}
 
@@ -85,6 +79,19 @@ func RegisterBoolFlag(cmd *cobra.Command, flagConfig *BoolFlag) error {
 	}
 
 	if err := viper.BindPFlag(flagConfig.getViperName(), flagSet.Lookup(flagConfig.Name)); err != nil {
+		return err
+	}
+	return nil
+}
+
+func markAttributes(cmd *cobra.Command, flagConfig *StringFlag) error {
+	if err := markAsFileName(cmd, flagConfig); err != nil {
+		return err
+	}
+	if err := markAsDirName(cmd, flagConfig); err != nil {
+		return err
+	}
+	if err := markAsRequired(cmd, flagConfig.Flag); err != nil {
 		return err
 	}
 	return nil
