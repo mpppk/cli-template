@@ -62,6 +62,16 @@ Then goreleaser will release the new version on Circle CI.
 (Before push tag, you must provide GitHub token to Circle CI as environment variable)
 
 For more details, see [my article (Japanese)](https://qiita.com/mpppk/items/ab328356ca14938a1208).
+
+## Build & Run Docker image
+
+```bash
+$ docker build -t cli-template .
+...
+$ docker run cli-template sum 1 2
+3
+```
+
 ## SaaS integration
 ### Circle CI
 This template includes [.circleci/config.yml](https://github.com/mpppk/cli-template/blob/master/.circleci/config.yml).
