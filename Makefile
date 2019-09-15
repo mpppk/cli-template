@@ -2,7 +2,7 @@ SHELL = /bin/bash
 
 .PHONY: lint
 lint:
-	gometalinter
+	go vet ./...
 
 .PHONY: test
 test:
