@@ -1,5 +1,5 @@
 name: Go
-on: [push, pull_request]
+on: [push]
 jobs:
 
   build:
@@ -8,8 +8,8 @@ jobs:
     strategy:
       matrix:
         os:
-          - ubuntu16.04
-          - ubuntu18.04
+          - ubuntu-16.04
+          - ubuntu-18.04
         goversion:
           - 1.11
           - 1.12
