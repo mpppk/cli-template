@@ -2,12 +2,13 @@ package sum_test
 
 import (
 	"fmt"
-	"github.com/mpppk/cli-template/pkg/sum"
-	"github.com/mpppk/cli-template/pkg/util"
 	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
+
+	"github.com/mpppk/cli-template/pkg/sum"
+	"github.com/mpppk/cli-template/pkg/util"
 )
 
 func ExampleSum() {
@@ -70,7 +71,7 @@ func TestSumFromFile(t *testing.T) {
 		t.Fatal(err)
 	}
 	contents := string(contentBytes)
-	lines := strings.Split(contents, "\n")
+	lines := strings.Split(strings.Replace(contents, "\r\n", "\n", -1), "\n")
 	var tests []tCase
 	for i, line := range lines {
 		strRow := strings.Split(line, " ")
@@ -81,7 +82,7 @@ func TestSumFromFile(t *testing.T) {
 		want := row[len(row)-1]
 		nums := row[:len(row)-1]
 		tc := tCase{
-			name: fmt.Sprintf("case%d\n", i),
+			name: fmt.Sprintf("case%d", i),
 			args: args{
 				numbers: nums,
 			},
