@@ -91,6 +91,8 @@ github.com/prometheus/procfs v0.0.0-20190507164030-5867b95ac084/go.mod h1:TjEm7z
 github.com/prometheus/tsdb v0.7.1/go.mod h1:qhTCs0VvXwvX/y3TZrWD7rabWM+ijKTux40TwIPHuXU=
 github.com/rhysd/go-github-selfupdate v1.1.0 h1:+aMomy69YCYxJ6kr13nYIgAJWSB1kHK5M5YpbmjQkWo=
 github.com/rhysd/go-github-selfupdate v1.1.0/go.mod h1:jbfShZ+Nl3IHUgr77kwQjObcWf1z961UAoD6p5LrPBU=
+github.com/rhysd/go-github-selfupdate v1.2.0 h1:3jivcC23qxbL5xwnf6S6oC9d/0IIjD5zQH1Kk5+y95M=
+github.com/rhysd/go-github-selfupdate v1.2.0/go.mod h1:BZHw2H9JIH7wdyda/btlRRD+sgudn1RO1NbnvY27/Ng=
 github.com/rogpeppe/fastuuid v0.0.0-20150106093220-6724a57986af/go.mod h1:XWv6SoW27p1b0cqNHllgS5HIMJraePCO15w5zCzIWYg=
 github.com/russross/blackfriday v1.5.2/go.mod h1:JO/DiYxRf+HjHt06OyowR9PTA263kcR/rfWxYHBV53g=
 github.com/sirupsen/logrus v1.2.0/go.mod h1:LxeOpSwHxABJmUn/MG1IvRgCAasNZTLOkJPxbbu5VWo=
