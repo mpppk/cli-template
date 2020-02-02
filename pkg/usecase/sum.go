@@ -5,7 +5,7 @@ import (
 	"golang.org/x/xerrors"
 )
 
-// CalcL1SumFromStringSlice is use case to calculate sum from string slice
+// CalcSumFromStringSlice is use case to calculate sum from string slice
 func CalcSumFromStringSlice(strNumbers []string) (int, error) {
 	numbers, err := domain.NewNumbersFromStringSlice(strNumbers)
 	if err != nil {
