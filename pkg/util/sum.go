@@ -1,8 +1,6 @@
-// Package sum provides utilities for calculate sum of numbers
-package sum
+package util
 
 import (
-	"github.com/mpppk/cli-template/pkg/util"
 	"math"
 )
 
@@ -25,7 +23,7 @@ func L1Norm(numbers []int) (l1norm int) {
 
 // SumFromString returns sum numbers which be converted from strings
 func SumFromString(stringNumbers []string) (sum int, err error) {
-	numbers, err := util.ConvertStringSliceToIntSlice(stringNumbers)
+	numbers, err := ConvertStringSliceToIntSlice(stringNumbers)
 	if err != nil {
 		return 0, err
 	}

@@ -3,9 +3,9 @@ package cmd
 import (
 	"strconv"
 
+	"github.com/mpppk/cli-template/pkg/usecase"
+
 	"github.com/mpppk/cli-template/internal/option"
-	"github.com/mpppk/cli-template/pkg/sum"
-	"github.com/mpppk/cli-template/pkg/util"
 	"github.com/spf13/afero"
 
 	"golang.org/x/xerrors"
@@ -54,25 +54,28 @@ func newSumCmd(fs afero.Fs) (*cobra.Command, error) {
 				return err
 			}
 
-			numbers, err := util.ConvertStringSliceToIntSlice(args)
-			if err != nil {
-				return err
-			}
-
-			var res int
+			var result int
 			if conf.Norm {
-				res = sum.L1Norm(numbers)
+				r, err := usecase.CalcL1NormFromStringSlice(args)
+				if err != nil {
+					return xerrors.Errorf("failed to calculate L1 norm: %w", err)
+				}
+				result = r
 			} else {
-				res = sum.Sum(numbers)
+				r, err := usecase.CalcSumFromStringSlice(args)
+				if err != nil {
+					return xerrors.Errorf("failed to calculate sum: %w", err)
+				}
+				result = r
 			}
 
 			if conf.HasOut() {
-				s := strconv.Itoa(res)
+				s := strconv.Itoa(result)
 				if err := afero.WriteFile(fs, conf.Out, []byte(s), 777); err != nil {
 					return xerrors.Errorf("failed to write file to %s: %w", conf.Out, err)
 				}
 			} else {
-				cmd.Println(res)
+				cmd.Println(result)
 			}
 
 			return nil

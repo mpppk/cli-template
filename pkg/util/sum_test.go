@@ -1,4 +1,4 @@
-package sum_test
+package util_test
 
 import (
 	"fmt"
@@ -7,13 +7,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mpppk/cli-template/pkg/sum"
 	"github.com/mpppk/cli-template/pkg/util"
 )
 
 func ExampleSum() {
 	numbers := []int{1, -2, 3}
-	fmt.Println(sum.Sum(numbers))
+	fmt.Println(util.Sum(numbers))
 	// Output:
 	// 2
 }
@@ -44,7 +43,7 @@ func TestSum(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotSum := sum.Sum(tt.args.numbers); gotSum != tt.wantSum {
+			if gotSum := util.Sum(tt.args.numbers); gotSum != tt.wantSum {
 				t.Errorf("Sum() = %v, want %v", gotSum, tt.wantSum)
 			}
 		})
@@ -93,7 +92,7 @@ func TestSumFromFile(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotSum := sum.Sum(tt.args.numbers); gotSum != tt.wantSum {
+			if gotSum := util.Sum(tt.args.numbers); gotSum != tt.wantSum {
 				t.Errorf("Sum() = %v, want %v", gotSum, tt.wantSum)
 			}
 		})
@@ -129,7 +128,7 @@ func TestSumFromString(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotSum, err := sum.SumFromString(tt.args.stringNumbers)
+			gotSum, err := util.SumFromString(tt.args.stringNumbers)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("SumFromString() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -143,7 +142,7 @@ func TestSumFromString(t *testing.T) {
 
 func ExampleL1Norm() {
 	numbers := []int{1, -2, 3}
-	fmt.Println(sum.L1Norm(numbers))
+	fmt.Println(util.L1Norm(numbers))
 	// Output:
 	// 6
 }
@@ -174,7 +173,7 @@ func TestL1Norm(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotSum := sum.L1Norm(tt.args.numbers); gotSum != tt.wantSum {
+			if gotSum := util.L1Norm(tt.args.numbers); gotSum != tt.wantSum {
 				t.Errorf("Sum() = %v, want %v", gotSum, tt.wantSum)
 			}
 		})
