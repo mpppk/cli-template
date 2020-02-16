@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/mpppk/cli-template/internal/option"
+
 	"github.com/spf13/afero"
 
 	"github.com/mitchellh/go-homedir"
@@ -14,31 +15,13 @@ import (
 
 var cfgFile string
 
-func newToggleFlag() *option.BoolFlag {
-	return &option.BoolFlag{
-		Flag: &option.Flag{
-			Name:  "toggle",
-			Usage: "Do nothing",
-		},
-		Value: false,
-	}
-}
-
 func NewRootCmd(fs afero.Fs) (*cobra.Command, error) {
 	cmd := &cobra.Command{
 		Use:   "cli-template",
 		Short: "cli-template",
 	}
 
-	configFlag := &option.StringFlag{
-		Flag: &option.Flag{
-			Name:         "config",
-			IsPersistent: true,
-			Usage:        "config file (default is $HOME/.cli-template.yaml)",
-		},
-	}
-
-	if err := option.RegisterStringFlag(cmd, configFlag); err != nil {
+	if err := registerFlags(cmd); err != nil {
 		return nil, err
 	}
 
@@ -53,6 +36,33 @@ func NewRootCmd(fs afero.Fs) (*cobra.Command, error) {
 	cmd.AddCommand(subCmds...)
 
 	return cmd, nil
+}
+
+func registerFlags(cmd *cobra.Command) error {
+	if err := option.RegisterStringFlag(cmd,
+		&option.StringFlag{
+			Flag: &option.Flag{
+				Name:         "config",
+				IsPersistent: true,
+				Usage:        "config file (default is $HOME/.cli-template.yaml)",
+			}},
+	); err != nil {
+		return err
+	}
+
+	if err := option.RegisterBoolFlag(cmd,
+		&option.BoolFlag{
+			Flag: &option.Flag{
+				Name:         "verbose",
+				Shorthand:    "v",
+				IsPersistent: true,
+				Usage:        "Show more logs",
+			}},
+	); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

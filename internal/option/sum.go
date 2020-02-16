@@ -1,28 +1,28 @@
 package option
 
-import "fmt"
+import (
+	"github.com/spf13/viper"
+	"golang.org/x/xerrors"
+)
 
 // SumCmdConfig is config for sum command
 type SumCmdConfig struct {
-	Norm bool
-	Out  string
+	Norm    bool
+	Out     string
+	Verbose bool
 }
 
 // NewSumCmdConfigFromViper generate config for sum command from viper
 func NewSumCmdConfigFromViper() (*SumCmdConfig, error) {
-	rawConfig, err := newCmdRawConfig()
-	return newSumCmdConfigFromRawConfig(rawConfig), err
-}
+	var conf SumCmdConfig
+	if err := viper.Unmarshal(&conf); err != nil {
+		return nil, xerrors.Errorf("failed to unmarshal config from viper: %w", err)
+	}
 
-func newSumCmdConfigFromRawConfig(rawConfig *CmdRawConfig) *SumCmdConfig {
-	out := rawConfig.Out
-	if rawConfig.Out == DefaultStringValue {
-		out = ""
+	if err := conf.validate(); err != nil {
+		return nil, xerrors.Errorf("failed to create sum cmd config: %w", err)
 	}
-	return &SumCmdConfig{
-		Norm: rawConfig.Norm,
-		Out:  out,
-	}
+	return &conf, nil
 }
 
 // HasOut returns whether or not config has Out property
@@ -31,8 +31,5 @@ func (c *SumCmdConfig) HasOut() bool {
 }
 
 func (c *SumCmdConfig) validate() error {
-	if c.Out == "" {
-		return fmt.Errorf("invalid --out flag value is empty")
-	}
 	return nil
 }
