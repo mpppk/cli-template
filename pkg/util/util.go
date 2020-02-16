@@ -2,8 +2,10 @@
 package util
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/comail/colog"
 )
@@ -28,4 +30,40 @@ func InitializeLog(verbose bool) {
 	if verbose {
 		colog.SetMinLevel(colog.LDebug)
 	}
+}
+
+func PrettyPrintError(err error) string {
+	var errs []error
+	for {
+		errs = append(errs, err)
+		if e := errors.Unwrap(err); e == nil {
+			break
+		} else {
+			err = e
+		}
+	}
+	var eMsgs []string
+	beforeErrMsg := ""
+	for i := len(errs) - 1; i >= 0; i-- {
+		e := errs[i]
+		eMsg := ""
+		if beforeErrMsg == "" {
+			eMsg = e.Error()
+		} else {
+			eMsgs := strings.Split(e.Error(), beforeErrMsg)
+			eMsg = eMsgs[0]
+		}
+		eMsgs = append(eMsgs, eMsg)
+		beforeErrMsg = e.Error()
+	}
+
+	retMsg := ""
+	for i := len(eMsgs) - 1; i >= 0; i-- {
+		prefix := "  "
+		if i == len(eMsgs)-1 {
+			prefix = "Error: "
+		}
+		retMsg = retMsg + fmt.Sprintln(prefix+strings.TrimSuffix(eMsgs[i], ": "))
+	}
+	return retMsg
 }

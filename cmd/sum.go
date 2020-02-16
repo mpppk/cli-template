@@ -25,7 +25,7 @@ func newSumCmd(fs afero.Fs) (*cobra.Command, error) {
 		PreRunE: func(cmd *cobra.Command, args []string) error {
 			for _, arg := range args {
 				if _, err := strconv.Atoi(arg); err != nil {
-					return fmt.Errorf("failed to convert args to int: %s: %w", arg, err)
+					return fmt.Errorf("failed to convert args to int from %q: %w", arg, err)
 				}
 			}
 			return nil

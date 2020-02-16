@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mpppk/cli-template/pkg/util"
+
 	"github.com/mpppk/cli-template/internal/option"
 
 	"github.com/spf13/afero"
@@ -17,8 +19,10 @@ var cfgFile string
 
 func NewRootCmd(fs afero.Fs) (*cobra.Command, error) {
 	cmd := &cobra.Command{
-		Use:   "cli-template",
-		Short: "cli-template",
+		Use:           "cli-template",
+		Short:         "cli-template",
+		SilenceErrors: true,
+		SilenceUsage:  true,
 	}
 
 	if err := registerFlags(cmd); err != nil {
@@ -73,7 +77,7 @@ func Execute() {
 		panic(err)
 	}
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Println(err)
+		fmt.Print(util.PrettyPrintError(err))
 		os.Exit(1)
 	}
 }
