@@ -1,8 +1,9 @@
 package option
 
 import (
+	"fmt"
+
 	"github.com/spf13/viper"
-	"golang.org/x/xerrors"
 )
 
 // SumCmdConfig is config for sum command
@@ -16,11 +17,11 @@ type SumCmdConfig struct {
 func NewSumCmdConfigFromViper() (*SumCmdConfig, error) {
 	var conf SumCmdConfig
 	if err := viper.Unmarshal(&conf); err != nil {
-		return nil, xerrors.Errorf("failed to unmarshal config from viper: %w", err)
+		return nil, fmt.Errorf("failed to unmarshal config from viper: %w", err)
 	}
 
 	if err := conf.validate(); err != nil {
-		return nil, xerrors.Errorf("failed to create sum cmd config: %w", err)
+		return nil, fmt.Errorf("failed to create sum cmd config: %w", err)
 	}
 	return &conf, nil
 }

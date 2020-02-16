@@ -2,11 +2,10 @@
 package util
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/comail/colog"
-
-	"golang.org/x/xerrors"
 )
 
 // ConvertStringSliceToIntSlice converts string slices to int slices.
@@ -14,7 +13,7 @@ func ConvertStringSliceToIntSlice(stringSlice []string) (intSlice []int, err err
 	for _, s := range stringSlice {
 		num, err := strconv.Atoi(s)
 		if err != nil {
-			return nil, xerrors.Errorf("failed to convert string slice to int slice: %w", err)
+			return nil, fmt.Errorf("failed to convert string slice to int slice: %w", err)
 		}
 		intSlice = append(intSlice, num)
 	}
