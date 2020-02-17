@@ -22,6 +22,7 @@ func ConvertStringSliceToIntSlice(stringSlice []string) (intSlice []int, err err
 	return
 }
 
+// InitializeLog initialize log settings
 func InitializeLog(verbose bool) {
 	colog.Register()
 	colog.SetDefaultLevel(colog.LDebug)
@@ -32,6 +33,7 @@ func InitializeLog(verbose bool) {
 	}
 }
 
+// PrettyPrintError print error as pretty
 func PrettyPrintError(err error) string {
 	var errs []error
 	for {
