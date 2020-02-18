@@ -1,8 +1,9 @@
 package option
 
 import (
+	"fmt"
+
 	"github.com/spf13/viper"
-	"golang.org/x/xerrors"
 )
 
 type CmdConfig struct {
@@ -17,11 +18,11 @@ func NewRootCmdConfigFromViper() (*CmdConfig, error) {
 func newCmdRawConfig() (*CmdRawConfig, error) {
 	var conf CmdRawConfig
 	if err := viper.Unmarshal(&conf); err != nil {
-		return nil, xerrors.Errorf("failed to unmarshal config from viper: %w", err)
+		return nil, fmt.Errorf("failed to unmarshal config from viper: %w", err)
 	}
 
 	if err := conf.validate(); err != nil {
-		return nil, xerrors.Errorf("failed to create root cmd config: %w", err)
+		return nil, fmt.Errorf("failed to create root cmd config: %w", err)
 	}
 	return &conf, nil
 }
@@ -39,7 +40,7 @@ type CmdRawConfig struct {
 
 func (c *CmdRawConfig) validate() error {
 	if err := c.SumCmdConfig.validate(); err != nil {
-		return xerrors.Errorf("invalid config parameter is given to SumCmdConfig: %w", err)
+		return fmt.Errorf("invalid config parameter is given to SumCmdConfig: %w", err)
 	}
 	return nil
 }

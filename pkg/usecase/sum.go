@@ -1,15 +1,16 @@
 package usecase
 
 import (
+	"fmt"
+
 	"github.com/mpppk/cli-template/pkg/domain"
-	"golang.org/x/xerrors"
 )
 
 // CalcSumFromStringSlice is use case to calculate sum from string slice
 func CalcSumFromStringSlice(strNumbers []string) (int, error) {
 	numbers, err := domain.NewNumbersFromStringSlice(strNumbers)
 	if err != nil {
-		return 0, xerrors.Errorf("failed to create numbers from string slice: %w", err)
+		return 0, fmt.Errorf("failed to create numbers from string slice: %w", err)
 	}
 	return numbers.CalcSum(), nil
 }
@@ -18,7 +19,7 @@ func CalcSumFromStringSlice(strNumbers []string) (int, error) {
 func CalcL1NormFromStringSlice(strNumbers []string) (int, error) {
 	numbers, err := domain.NewNumbersFromStringSlice(strNumbers)
 	if err != nil {
-		return 0, xerrors.Errorf("failed to create numbers from string slice: %w", err)
+		return 0, fmt.Errorf("failed to create numbers from string slice: %w", err)
 	}
 	return numbers.CalcL1Norm(), nil
 }
