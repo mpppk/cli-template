@@ -5,6 +5,7 @@ go 1.12
 require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/comail/colog v0.0.0-20160416085026-fba8e7b1f46c
+	github.com/go-playground/validator/v10 v10.2.0
 	github.com/k0kubun/pp v3.0.1+incompatible
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/echo/v4 v4.1.14

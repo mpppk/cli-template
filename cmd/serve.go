@@ -3,6 +3,10 @@ package cmd
 import (
 	"net/http"
 
+	"github.com/mpppk/cli-template/pkg/util"
+
+	"github.com/go-playground/validator/v10"
+
 	"github.com/mpppk/cli-template/pkg/usecase"
 
 	"github.com/labstack/echo"
@@ -13,9 +17,17 @@ import (
 )
 
 type SumRequest struct {
-	A    int  `query:"a"`
-	B    int  `query:"b"`
+	A    int  `query:"a" validate:"required"`
+	B    int  `query:"b" validate:"required"`
 	Norm bool `query:"norm"`
+}
+
+type CustomValidator struct {
+	validator *validator.Validate
+}
+
+func (cv *CustomValidator) Validate(i interface{}) error {
+	return cv.validator.Struct(i)
 }
 
 func newServeCmd(fs afero.Fs) (*cobra.Command, error) {
@@ -23,6 +35,10 @@ func newServeCmd(fs afero.Fs) (*cobra.Command, error) {
 		req := new(SumRequest)
 		if err := c.Bind(req); err != nil {
 			return err
+		}
+
+		if err := c.Validate(req); err != nil {
+			return c.JSON(http.StatusBadRequest, util.ToErrorResponse(err))
 		}
 
 		var result int
@@ -48,6 +64,7 @@ func newServeCmd(fs afero.Fs) (*cobra.Command, error) {
 		Long:  ``,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			e := echo.New()
+			e.Validator = &CustomValidator{validator: validator.New()}
 			e.GET("/api/sum", sumHandler)
 			e.Logger.Fatal(e.Start(":1323"))
 			return nil
