@@ -35,16 +35,23 @@ func InitializeLog(verbose bool) {
 
 // PrettyPrintError print error as pretty
 func PrettyPrintError(err error) string {
-	var errs []error
-	for {
-		errs = append(errs, err)
-		if e := errors.Unwrap(err); e == nil {
-			break
-		} else {
-			err = e
+	messages := extractMessagesFromError(err)
+	return joinErrorMessages(messages)
+}
+
+func joinErrorMessages(messages []string) (message string) {
+	for i := len(messages) - 1; i >= 0; i-- {
+		prefix := "  "
+		if i == len(messages)-1 {
+			prefix = "Error: "
 		}
+		message = message + fmt.Sprintln(prefix+strings.TrimSuffix(messages[i], ": "))
 	}
-	var eMsgs []string
+	return
+}
+
+func extractMessagesFromError(err error) (messages []string) {
+	errs := unwrapErrors(err)
 	beforeErrMsg := ""
 	for i := len(errs) - 1; i >= 0; i-- {
 		e := errs[i]
@@ -55,17 +62,20 @@ func PrettyPrintError(err error) string {
 			eMsgs := strings.Split(e.Error(), beforeErrMsg)
 			eMsg = eMsgs[0]
 		}
-		eMsgs = append(eMsgs, eMsg)
+		messages = append(messages, eMsg)
 		beforeErrMsg = e.Error()
 	}
+	return
+}
 
-	retMsg := ""
-	for i := len(eMsgs) - 1; i >= 0; i-- {
-		prefix := "  "
-		if i == len(eMsgs)-1 {
-			prefix = "Error: "
+func unwrapErrors(err error) (errs []error) {
+	for {
+		errs = append(errs, err)
+		if e := errors.Unwrap(err); e == nil {
+			break
+		} else {
+			err = e
 		}
-		retMsg = retMsg + fmt.Sprintln(prefix+strings.TrimSuffix(eMsgs[i], ": "))
 	}
-	return retMsg
+	return
 }
