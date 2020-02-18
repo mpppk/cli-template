@@ -6,6 +6,11 @@ import (
 	"github.com/mpppk/cli-template/pkg/domain"
 )
 
+// CalcSum is use case to calculate sum
+func CalcSum(strNumbers []int) (int, error) {
+	return domain.NewNumbers(strNumbers).CalcSum(), nil
+}
+
 // CalcSumFromStringSlice is use case to calculate sum from string slice
 func CalcSumFromStringSlice(strNumbers []string) (int, error) {
 	numbers, err := domain.NewNumbersFromStringSlice(strNumbers)
@@ -13,6 +18,11 @@ func CalcSumFromStringSlice(strNumbers []string) (int, error) {
 		return 0, fmt.Errorf("failed to create numbers from string slice: %w", err)
 	}
 	return numbers.CalcSum(), nil
+}
+
+// CalcL1Norm is use case to calculate L1 norm
+func CalcL1Norm(strNumbers []int) (int, error) {
+	return domain.NewNumbers(strNumbers).CalcL1Norm(), nil
 }
 
 // CalcL1NormFromStringSlice is use case to calculate L1 norm from string slice
