@@ -5,7 +5,6 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/mpppk/cli-template/pkg/usecase"
-	"github.com/mpppk/cli-template/pkg/util"
 )
 
 type handler struct{}
@@ -33,7 +32,8 @@ func (h *handler) Sum(c echo.Context) error {
 	}
 
 	if err := c.Validate(req); err != nil {
-		return c.JSON(http.StatusBadRequest, util.ToErrorResponse(err))
+		logWithJson("invalid request", req)
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	var result int
