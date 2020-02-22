@@ -19,6 +19,7 @@ func registerHandlers(e *echo.Echo) {
 	e.GET("/api/sum", h.Sum)
 }
 
+// NewServer create new echo server with handlers
 func NewServer() *echo.Echo {
 	e := echo.New()
 	e.Validator = &customValidator{validator: validator.New()}

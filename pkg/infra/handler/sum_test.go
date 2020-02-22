@@ -67,7 +67,7 @@ func TestSum(t *testing.T) {
 			err := h.Sum(e.NewContext(req, rec))
 
 			if (err != nil) != tt.wantErr {
-				t.Errorf("handler.Sum() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Handler.Sum() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 
@@ -91,15 +91,15 @@ func TestSum(t *testing.T) {
 			}
 
 			gotRes := rec.Body.String()
-			resJson := toResponseJson(t, tt.want.res)
-			if resJson != gotRes {
-				t.Errorf("HTTP Response: got = %s, want %s", gotRes, resJson)
+			resJSON := toResponseJSON(t, tt.want.res)
+			if resJSON != gotRes {
+				t.Errorf("HTTP Response: got = %s, want %s", gotRes, resJSON)
 			}
 		})
 	}
 }
 
-func toResponseJson(t *testing.T, res interface{}) string {
+func toResponseJSON(t *testing.T, res interface{}) string {
 	t.Helper()
 
 	resContents, err := json.Marshal(res)
