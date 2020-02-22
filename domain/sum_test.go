@@ -204,7 +204,7 @@ func TestSumFromFile(t *testing.T) {
 		wantSum int
 	}
 
-	f, err := os.Open("../../testdata/sum.txt")
+	f, err := os.Open("../testdata/sum.txt")
 	if err != nil {
 		t.Fatal(err)
 	}
