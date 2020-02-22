@@ -1,9 +1,11 @@
-package util
+package util_test
 
 import (
 	"errors"
 	"fmt"
 	"testing"
+
+	"github.com/mpppk/cli-template/util"
 )
 
 func TestPrettyPrintError(t *testing.T) {
@@ -32,7 +34,7 @@ func TestPrettyPrintError(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := PrettyPrintError(tt.args.err); got != tt.want {
+			if got := util.PrettyPrintError(tt.args.err); got != tt.want {
 				t.Errorf("PrettyPrintError() = %v, want %v", got, tt.want)
 			}
 		})

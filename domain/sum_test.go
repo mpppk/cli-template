@@ -1,4 +1,4 @@
-package domain
+package domain_test
 
 import (
 	"fmt"
@@ -7,6 +7,8 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+
+	"github.com/mpppk/cli-template/domain"
 
 	"github.com/mpppk/cli-template/util"
 )
@@ -18,7 +20,7 @@ func TestNewNumbers(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want Numbers
+		want domain.Numbers
 	}{
 		{
 			name: "",
@@ -44,7 +46,7 @@ func TestNewNumbers(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewNumbers(tt.args.nums); !reflect.DeepEqual(got, tt.want) {
+			if got := domain.NewNumbers(tt.args.nums); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewNumbers() = %v, want %v", got, tt.want)
 			}
 		})
@@ -58,7 +60,7 @@ func TestNewNumbersFromStringSlice(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    Numbers
+		want    domain.Numbers
 		wantErr bool
 	}{
 		{
@@ -91,7 +93,7 @@ func TestNewNumbersFromStringSlice(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := NewNumbersFromStringSlice(tt.args.strNumbers)
+			got, err := domain.NewNumbersFromStringSlice(tt.args.strNumbers)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NewNumbersFromStringSlice() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -106,7 +108,7 @@ func TestNewNumbersFromStringSlice(t *testing.T) {
 func TestNumbers_CalcL1Norm(t *testing.T) {
 	tests := []struct {
 		name string
-		n    Numbers
+		n    domain.Numbers
 		want int
 	}{
 		{
@@ -130,7 +132,7 @@ func TestNumbers_CalcL1Norm(t *testing.T) {
 func TestNumbers_CalcSum(t *testing.T) {
 	tests := []struct {
 		name string
-		n    Numbers
+		n    domain.Numbers
 		want int
 	}{
 		{
@@ -153,7 +155,7 @@ func TestNumbers_CalcSum(t *testing.T) {
 
 func ExampleSum() {
 	numbers := []int{1, -2, 3}
-	fmt.Println(Sum(numbers))
+	fmt.Println(domain.Sum(numbers))
 	// Output:
 	// 2
 }
@@ -184,7 +186,7 @@ func TestSum(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotSum := Sum(tt.args.numbers); gotSum != tt.wantSum {
+			if gotSum := domain.Sum(tt.args.numbers); gotSum != tt.wantSum {
 				t.Errorf("Sum() = %v, want %v", gotSum, tt.wantSum)
 			}
 		})
@@ -233,7 +235,7 @@ func TestSumFromFile(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotSum := Sum(tt.args.numbers); gotSum != tt.wantSum {
+			if gotSum := domain.Sum(tt.args.numbers); gotSum != tt.wantSum {
 				t.Errorf("Sum() = %v, want %v", gotSum, tt.wantSum)
 			}
 		})
@@ -269,7 +271,7 @@ func TestSumFromString(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotSum, err := SumFromString(tt.args.stringNumbers)
+			gotSum, err := domain.SumFromString(tt.args.stringNumbers)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("SumFromString() error = %v, wantErr %v", err, tt.wantErr)
 				return
@@ -283,7 +285,7 @@ func TestSumFromString(t *testing.T) {
 
 func ExampleL1Norm() {
 	numbers := []int{1, -2, 3}
-	fmt.Println(L1Norm(numbers))
+	fmt.Println(domain.L1Norm(numbers))
 	// Output:
 	// 6
 }
@@ -314,7 +316,7 @@ func TestL1Norm(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotSum := L1Norm(tt.args.numbers); gotSum != tt.wantSum {
+			if gotSum := domain.L1Norm(tt.args.numbers); gotSum != tt.wantSum {
 				t.Errorf("Sum() = %v, want %v", gotSum, tt.wantSum)
 			}
 		})
