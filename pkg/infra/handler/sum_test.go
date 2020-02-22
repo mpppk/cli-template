@@ -33,7 +33,16 @@ func TestSum(t *testing.T) {
 	}{
 		{
 			params: params{
-				path: "/api/sum?a=1&b=2",
+				path: "/api/sum?a=-1&b=2",
+			},
+			want: want{
+				res:  handler.SumResponse{Result: 1},
+				code: http.StatusOK,
+			},
+		},
+		{
+			params: params{
+				path: "/api/sum?a=-1&b=2&norm=true",
 			},
 			want: want{
 				res:  handler.SumResponse{Result: 3},
