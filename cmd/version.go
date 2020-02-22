@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/mpppk/cli-template/internal/selfupdate"
+	"github.com/mpppk/cli-template/util"
 	"github.com/spf13/afero"
 	"github.com/spf13/cobra"
 )
@@ -12,7 +12,7 @@ func newVersionCmd(fs afero.Fs) (*cobra.Command, error) {
 		Short: "Show version",
 		//Long: ``,
 		Run: func(cmd *cobra.Command, args []string) {
-			cmd.Println(selfupdate.Version)
+			cmd.Println(util.Version)
 		},
 	}
 	return cmd, nil

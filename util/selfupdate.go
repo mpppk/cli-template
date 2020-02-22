@@ -1,5 +1,5 @@
 // Package selfupdate provides function to update binary
-package selfupdate
+package util
 
 import (
 	"fmt"

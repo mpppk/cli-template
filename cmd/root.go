@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mpppk/cli-template/pkg/util"
+	"github.com/mpppk/cli-template/util"
 
-	"github.com/mpppk/cli-template/internal/option"
+	"github.com/mpppk/cli-template/cmd/option"
 
 	"github.com/spf13/afero"
 
