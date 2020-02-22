@@ -67,7 +67,7 @@ func TestSum(t *testing.T) {
 			err := h.Sum(e.NewContext(req, rec))
 
 			if (err != nil) != tt.wantErr {
-				t.Errorf("Handler.Sum() error = %v, wantErr %v", err, tt.wantErr)
+				t.Errorf("Handlers.Sum() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 

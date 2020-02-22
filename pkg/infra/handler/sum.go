@@ -7,7 +7,8 @@ import (
 	"github.com/mpppk/cli-template/pkg/usecase"
 )
 
-type Handler struct{}
+// Handlers represent handlers of echo server
+type Handlers struct{}
 
 type sumRequest struct {
 	A    int  `query:"a" Validate:"required"`
@@ -20,12 +21,12 @@ type sumResponse struct {
 }
 
 // New create new handlers
-func New() *Handler {
-	return &Handler{}
+func New() *Handlers {
+	return &Handlers{}
 }
 
 // Sum handle http request to calculate sum
-func (h *Handler) Sum(c echo.Context) error {
+func (h *Handlers) Sum(c echo.Context) error {
 	req := new(sumRequest)
 	if err := c.Bind(req); err != nil {
 		return err
