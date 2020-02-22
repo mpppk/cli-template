@@ -3,7 +3,7 @@ package usecase
 import (
 	"fmt"
 
-	"github.com/mpppk/cli-template/pkg/domain"
+	"github.com/mpppk/cli-template/domain"
 )
 
 // CalcSum is use case to calculate sum

@@ -3,7 +3,7 @@ package usecase_test
 import (
 	"testing"
 
-	"github.com/mpppk/cli-template/pkg/usecase"
+	"github.com/mpppk/cli-template/usecase"
 )
 
 func TestCalcL1NormFromStringSlice(t *testing.T) {

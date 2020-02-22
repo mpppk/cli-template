@@ -9,13 +9,11 @@ import (
 
 	"github.com/labstack/echo"
 
-	"github.com/mpppk/cli-template/pkg/infra/handler"
-
-	"github.com/mpppk/cli-template/pkg/infra"
+	"github.com/mpppk/cli-template/handler"
 )
 
 func TestSum(t *testing.T) {
-	e := infra.NewServer()
+	e := handler.NewServer()
 	h := handler.New()
 
 	type params struct {

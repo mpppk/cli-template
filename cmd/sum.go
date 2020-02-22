@@ -5,11 +5,11 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/mpppk/cli-template/pkg/util"
+	"github.com/mpppk/cli-template/util"
 
-	"github.com/mpppk/cli-template/pkg/usecase"
+	"github.com/mpppk/cli-template/usecase"
 
-	"github.com/mpppk/cli-template/internal/option"
+	"github.com/mpppk/cli-template/cmd/option"
 	"github.com/spf13/afero"
 
 	"github.com/spf13/cobra"

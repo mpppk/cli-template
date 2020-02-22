@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/mpppk/cli-template/internal/option"
+	"github.com/mpppk/cli-template/cmd/option"
 )
 
 func Test_newCmdConfigFromRawConfig(t *testing.T) {

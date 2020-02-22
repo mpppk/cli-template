@@ -1,9 +1,9 @@
-package infra
+package handler
 
 import (
+	"github.com/comail/colog"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo"
-	"github.com/mpppk/cli-template/pkg/infra/handler"
 )
 
 type customValidator struct {
@@ -15,7 +15,7 @@ func (cv *customValidator) Validate(i interface{}) error {
 }
 
 func registerHandlers(e *echo.Echo) {
-	h := handler.New()
+	h := New()
 	e.GET("/api/sum", h.Sum)
 }
 
@@ -25,4 +25,15 @@ func NewServer() *echo.Echo {
 	e.Validator = &customValidator{validator: validator.New()}
 	registerHandlers(e)
 	return e
+}
+
+// InitializeLog initialize log settings
+func InitializeLog(verbose bool) {
+	colog.Register()
+	colog.SetDefaultLevel(colog.LDebug)
+	colog.SetMinLevel(colog.LInfo)
+
+	if verbose {
+		colog.SetMinLevel(colog.LDebug)
+	}
 }
