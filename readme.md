@@ -1,6 +1,7 @@
 # golang CLI Template
 [![CircleCI](https://circleci.com/gh/mpppk/cli-template.svg?style=svg)](https://circleci.com/gh/mpppk/cli-template)
 [![Build status](https://ci.appveyor.com/api/projects/status/qv1fyq6fm8ni4cne?svg=true)](https://ci.appveyor.com/project/mpppk/cli-template)
+![GitHub Actions](https://github.com/mpppk/cli-template/workflows/Go/badge.svg)
 [![codecov](https://codecov.io/gh/mpppk/cli-template/branch/master/graph/badge.svg)](https://codecov.io/gh/mpppk/cli-template)
 [![GoDoc](https://godoc.org/github.com/mpppk/cli-template?status.svg)](https://godoc.org/github.com/mpppk/cli-template)
 
@@ -17,9 +18,15 @@ Click "Use this template" button on GitHub project page.
 ![](https://github.com/mpppk/cli-template/wiki/images/template-button.png)
 
 ## Project structure
+### Application layers
 * `/cmd` includes golang files which implements command and sub commands.
-* `/pkg` includes golang files which will be used by other projects.
-* `/internal` includes golang files which will **not** be used by other projects.
+* `/domain` includes golang files which implements domain model. This package should not depend on other layers.
+* `/handler` includes golang files which implements handlers of http request.
+* `/usecase` includes golang files which implements application use cases. This package is only allowed to depend on *domain* layer.
+
+### Others
+* `/util` includes golang files which implements utilities. All layers can depend on this package. This package should not depend on other packages.
+* `/scripts` includes scripts
 * `/testdata` includes data files for tests. (see https://golang.org/cmd/go/#hdr-Test_packages)
 
 For more detail, see [golang-standards/project-layout](https://github.com/golang-standards/project-layout).
@@ -41,7 +48,7 @@ Write [godoc](https://blog.golang.org/godoc-documenting-go-code)([example code](
 
 ## Testing
 Don't write test in same package, instead put to `package-name_test` package.  
-For example, test of [pkg/sum/sum.go](https://github.com/mpppk/cli-template/blob/master/pkg/sum/sum_test.go) is in `sum_test` package, not `sum` package.  
+For example, test of [domain/sum.go](https://github.com/mpppk/cli-template/blob/master/domain/sum_test.go) is in `domain_test` package, not `domain` package.  
 To use unexported variables or functions in test, expose these by `export_test.go` file.  
 (ex. [/internal/option/root_export_test.go](https://github.com/mpppk/cli-template/blob/master/internal/option/root_export_test.go))
 
