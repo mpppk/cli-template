@@ -1,10 +1,7 @@
 package cmd
 
 import (
-	"net/http"
-
-	"github.com/labstack/echo"
-
+	"github.com/mpppk/cli-template/pkg/infra"
 	"github.com/spf13/afero"
 
 	"github.com/spf13/cobra"
@@ -16,10 +13,7 @@ func newServeCmd(fs afero.Fs) (*cobra.Command, error) {
 		Short: "Run server",
 		Long:  ``,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			e := echo.New()
-			e.GET("/", func(c echo.Context) error {
-				return c.String(http.StatusOK, "Hello, World!")
-			})
+			e := infra.NewServer()
 			e.Logger.Fatal(e.Start(":1323"))
 			return nil
 		},
