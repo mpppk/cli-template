@@ -16,10 +16,16 @@ type sumRequest struct {
 	Norm bool `query:"norm"`
 }
 
+type sumResponse struct {
+	Result int `json:"result"`
+}
+
+// New create new handlers
 func New() *handler {
 	return &handler{}
 }
 
+// Sum handle http request to calculate sum
 func (h *handler) Sum(c echo.Context) error {
 	req := new(sumRequest)
 	if err := c.Bind(req); err != nil {
@@ -36,5 +42,5 @@ func (h *handler) Sum(c echo.Context) error {
 	} else {
 		result = usecase.CalcSum([]int{req.A, req.B})
 	}
-	return c.JSON(http.StatusOK, result)
+	return c.JSON(http.StatusOK, sumResponse{Result: result})
 }
