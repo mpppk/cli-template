@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mpppk/cli-template/handler"
 	"github.com/mpppk/cli-template/util"
 
 	"github.com/mpppk/cli-template/cmd/option"
@@ -17,12 +18,21 @@ import (
 
 var cfgFile string
 
+// NewRootCmd generate root cmd
 func NewRootCmd(fs afero.Fs) (*cobra.Command, error) {
 	cmd := &cobra.Command{
 		Use:           "cli-template",
 		Short:         "cli-template",
 		SilenceErrors: true,
 		SilenceUsage:  true,
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			conf, err := option.NewRootCmdConfigFromViper()
+			if err != nil {
+				return err
+			}
+			handler.InitializeLog(conf.Verbose)
+			return nil
+		},
 	}
 
 	if err := registerFlags(cmd); err != nil {

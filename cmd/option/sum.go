@@ -8,9 +8,8 @@ import (
 
 // SumCmdConfig is config for sum command
 type SumCmdConfig struct {
-	Norm    bool
-	Out     string
-	Verbose bool
+	Norm bool
+	Out  string
 }
 
 // NewSumCmdConfigFromViper generate config for sum command from viper
