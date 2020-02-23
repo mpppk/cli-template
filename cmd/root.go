@@ -20,36 +20,45 @@ var cfgFile string
 
 // NewRootCmd generate root cmd
 func NewRootCmd(fs afero.Fs) (*cobra.Command, error) {
+	pPreRunE := func(cmd *cobra.Command, args []string) error {
+		conf, err := option.NewRootCmdConfigFromViper()
+		if err != nil {
+			return err
+		}
+		handler.InitializeLog(conf.Verbose)
+		return nil
+	}
+
 	cmd := &cobra.Command{
-		Use:           "cli-template",
-		Short:         "cli-template",
-		SilenceErrors: true,
-		SilenceUsage:  true,
-		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			conf, err := option.NewRootCmdConfigFromViper()
-			if err != nil {
-				return err
-			}
-			handler.InitializeLog(conf.Verbose)
-			return nil
-		},
+		Use:               "cli-template",
+		Short:             "cli-template",
+		SilenceErrors:     true,
+		SilenceUsage:      true,
+		PersistentPreRunE: pPreRunE,
+	}
+
+	if err := registerSubCommands(fs, cmd); err != nil {
+		return nil, err
 	}
 
 	if err := registerFlags(cmd); err != nil {
 		return nil, err
 	}
 
+	return cmd, nil
+}
+
+func registerSubCommands(fs afero.Fs, cmd *cobra.Command) error {
 	var subCmds []*cobra.Command
 	for _, cmdGen := range cmdGenerators {
 		subCmd, err := cmdGen(fs)
 		if err != nil {
-			return nil, err
+			return err
 		}
 		subCmds = append(subCmds, subCmd)
 	}
 	cmd.AddCommand(subCmds...)
-
-	return cmd, nil
+	return nil
 }
 
 func registerFlags(cmd *cobra.Command) error {
