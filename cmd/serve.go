@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"github.com/mpppk/cli-template/cmd/option"
 	"github.com/mpppk/cli-template/handler"
 	"github.com/spf13/afero"
 
@@ -13,12 +14,34 @@ func newServeCmd(fs afero.Fs) (*cobra.Command, error) {
 		Short: "Run server",
 		Long:  ``,
 		RunE: func(cmd *cobra.Command, args []string) error {
+			conf, err := option.NewServeCmdConfigFromViper()
+			if err != nil {
+				return err
+			}
 			e := handler.NewServer()
-			e.Logger.Fatal(e.Start(":1323"))
+			e.Logger.Fatal(e.Start(":" + conf.Port))
 			return nil
 		},
 	}
+	if err := registerServeCommandFlags(cmd); err != nil {
+		return nil, err
+	}
 	return cmd, nil
+}
+
+func registerServeCommandFlags(cmd *cobra.Command) error {
+	if err := option.RegisterStringFlag(cmd,
+		&option.StringFlag{
+			Flag: &option.Flag{
+				Name:  "port",
+				Usage: "server port",
+			},
+			Value: "1323",
+		},
+	); err != nil {
+		return err
+	}
+	return nil
 }
 
 func init() {
