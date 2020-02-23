@@ -6,41 +6,16 @@ import (
 	"github.com/spf13/viper"
 )
 
-type CmdConfig struct {
-	Toggle bool
+// RootCmdConfig is config for root command
+type RootCmdConfig struct {
+	Verbose bool
 }
 
-func NewRootCmdConfigFromViper() (*CmdConfig, error) {
-	rawConfig, err := newCmdRawConfig()
-	return newCmdConfigFromRawConfig(rawConfig), err
-}
-
-func newCmdRawConfig() (*CmdRawConfig, error) {
-	var conf CmdRawConfig
+// NewRootCmdConfigFromViper generate config for sum command from viper
+func NewRootCmdConfigFromViper() (*RootCmdConfig, error) {
+	var conf RootCmdConfig
 	if err := viper.Unmarshal(&conf); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal config from viper: %w", err)
 	}
-
-	if err := conf.validate(); err != nil {
-		return nil, fmt.Errorf("failed to create root cmd config: %w", err)
-	}
 	return &conf, nil
-}
-
-func newCmdConfigFromRawConfig(rawConfig *CmdRawConfig) *CmdConfig {
-	return &CmdConfig{
-		Toggle: rawConfig.Toggle,
-	}
-}
-
-type CmdRawConfig struct {
-	SumCmdConfig `mapstructure:",squash"`
-	Toggle       bool
-}
-
-func (c *CmdRawConfig) validate() error {
-	if err := c.SumCmdConfig.validate(); err != nil {
-		return fmt.Errorf("invalid config parameter is given to SumCmdConfig: %w", err)
-	}
-	return nil
 }

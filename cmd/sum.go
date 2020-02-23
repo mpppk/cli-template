@@ -5,8 +5,6 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/mpppk/cli-template/handler"
-
 	"github.com/mpppk/cli-template/usecase"
 
 	"github.com/mpppk/cli-template/cmd/option"
@@ -35,8 +33,6 @@ func newSumCmd(fs afero.Fs) (*cobra.Command, error) {
 			if err != nil {
 				return err
 			}
-
-			handler.InitializeLog(conf.Verbose)
 
 			var result int
 			if conf.Norm {
