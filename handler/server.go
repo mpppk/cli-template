@@ -1,9 +1,12 @@
 package handler
 
 import (
+	"fmt"
+
 	"github.com/comail/colog"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 type customValidator struct {
@@ -19,10 +22,19 @@ func registerHandlers(e *echo.Echo) {
 	e.GET("/api/sum", h.Sum)
 }
 
+func bodyDumpHandler(c echo.Context, reqBody, resBody []byte) {
+	fmt.Printf("Request Body: %v\n", string(reqBody))
+	fmt.Printf("Response Body: %v\n", string(resBody))
+}
+
 // NewServer create new echo server with handlers
 func NewServer() *echo.Echo {
 	e := echo.New()
 	e.Validator = &customValidator{validator: validator.New()}
+	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: fmt.Sprintln("method=${method}, uri=${uri}, status=${status}"),
+	}))
+	e.Use(middleware.BodyDump(bodyDumpHandler))
 	registerHandlers(e)
 	return e
 }
