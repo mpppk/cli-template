@@ -75,29 +75,22 @@ func newSumCmd(fs afero.Fs) (*cobra.Command, error) {
 }
 
 func registerSumCommandFlags(cmd *cobra.Command) error {
-	if err := option.RegisterBoolFlag(cmd,
+	flags := []option.Flag{
 		&option.BoolFlag{
-			Flag: &option.Flag{
+			BaseFlag: &option.BaseFlag{
 				Name:  "norm",
 				Usage: "Calc L1 norm instead of sum",
 			},
 			Value: false,
 		},
-	); err != nil {
-		return err
-	}
-
-	if err := option.RegisterStringFlag(cmd,
 		&option.StringFlag{
-			Flag: &option.Flag{
+			BaseFlag: &option.BaseFlag{
 				Name:  "out",
 				Usage: "Output file path",
 			},
 		},
-	); err != nil {
-		return err
 	}
-	return nil
+	return option.RegisterFlags(cmd, flags)
 }
 
 func init() {
