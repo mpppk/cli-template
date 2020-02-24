@@ -110,6 +110,8 @@ func RegisterFlag(cmd *cobra.Command, flag Flag) error {
 	switch f := flag.(type) {
 	case *StringFlag:
 		rerr = RegisterStringFlag(cmd, f)
+	case *BoolFlag:
+		rerr = RegisterBoolFlag(cmd, f)
 	case *IntFlag:
 		rerr = RegisterIntFlag(cmd, f)
 	case *Int8Flag:

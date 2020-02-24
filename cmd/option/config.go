@@ -6,7 +6,7 @@ import (
 	"github.com/spf13/pflag"
 )
 
-// BaseFlag represents flag which can be specified
+// BaseFlag represents base command line flag
 type BaseFlag struct {
 	IsPersistent bool
 	IsRequired   bool
@@ -16,6 +16,7 @@ type BaseFlag struct {
 	ViperName    string
 }
 
+// Flag represents flag which has base flag
 type Flag interface {
 	getBaseFlag() *BaseFlag
 }
