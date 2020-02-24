@@ -64,7 +64,7 @@ func registerSubCommands(fs afero.Fs, cmd *cobra.Command) error {
 func registerFlags(cmd *cobra.Command) error {
 	if err := option.RegisterStringFlag(cmd,
 		&option.StringFlag{
-			Flag: &option.Flag{
+			BaseFlag: &option.BaseFlag{
 				Name:         "config",
 				IsPersistent: true,
 				Usage:        "config file (default is $HOME/.cli-template.yaml)",
@@ -75,7 +75,7 @@ func registerFlags(cmd *cobra.Command) error {
 
 	if err := option.RegisterBoolFlag(cmd,
 		&option.BoolFlag{
-			Flag: &option.Flag{
+			BaseFlag: &option.BaseFlag{
 				Name:         "verbose",
 				Shorthand:    "v",
 				IsPersistent: true,

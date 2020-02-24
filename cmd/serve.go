@@ -30,18 +30,17 @@ func newServeCmd(fs afero.Fs) (*cobra.Command, error) {
 }
 
 func registerServeCommandFlags(cmd *cobra.Command) error {
-	if err := option.RegisterStringFlag(cmd,
-		&option.StringFlag{
-			Flag: &option.Flag{
+	flags := []option.Flag{
+		&option.Uint16Flag{
+			BaseFlag: &option.BaseFlag{
 				Name:  "port",
 				Usage: "server port",
 			},
-			Value: "1323",
+			Value: 1323,
 		},
-	); err != nil {
-		return err
 	}
-	return nil
+
+	return option.RegisterFlags(cmd, flags)
 }
 
 func init() {
