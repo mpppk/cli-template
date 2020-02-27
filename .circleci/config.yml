@@ -1,6 +1,6 @@
 defaults: &defaults
   docker:
-    - image: circleci/golang:1.13
+    - image: circleci/golang:1.14
   environment:
     GO111MODULE: "on"
 
