@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/mpppk/cli-template/repoimpl"
 	"log"
 	"strconv"
 
@@ -29,26 +30,23 @@ func newSumCmd(fs afero.Fs) (*cobra.Command, error) {
 			return nil
 		},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			conf, err := option.NewSumCmdConfigFromViper()
+			conf, err := option.NewSumCmdConfigFromViper(args)
 			if err != nil {
 				return err
 			}
 
+			r := repoimpl.NewMemorySumHistory()
+			useCase := usecase.NewSum(r)
+
 			var result int
 			if conf.Norm {
 				log.Println("start L1 Norm calculation")
-				r, err := usecase.CalcL1NormFromStringSlice(args)
-				if err != nil {
-					return fmt.Errorf("failed to calculate L1 norm: %w", err)
-				}
+				r := useCase.CalcL1Norm(conf.Numbers)
 				log.Println("finish L1 Norm calculation")
 				result = r
 			} else {
 				log.Println("start sum calculation")
-				r, err := usecase.CalcSumFromStringSlice(args)
-				if err != nil {
-					return fmt.Errorf("failed to calculate sum: %w", err)
-				}
+				r := useCase.CalcSum(conf.Numbers)
 				log.Println("finish sum calculation")
 				result = r
 			}

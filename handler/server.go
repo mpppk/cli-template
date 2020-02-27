@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+	"github.com/mpppk/cli-template/repoimpl"
 
 	"github.com/comail/colog"
 	"github.com/go-playground/validator/v10"
@@ -18,7 +19,8 @@ func (cv *customValidator) Validate(i interface{}) error {
 }
 
 func registerHandlers(e *echo.Echo) {
-	h := New()
+	r := repoimpl.NewMemorySumHistory()
+	h := New(r)
 	e.GET("/api/sum", h.Sum)
 }
 

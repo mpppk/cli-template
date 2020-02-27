@@ -2,6 +2,7 @@ package option
 
 import (
 	"fmt"
+	"github.com/mpppk/cli-template/util"
 
 	"github.com/spf13/viper"
 )
@@ -10,10 +11,11 @@ import (
 type SumCmdConfig struct {
 	Norm bool
 	Out  string
+	Numbers []int
 }
 
 // NewSumCmdConfigFromViper generate config for sum command from viper
-func NewSumCmdConfigFromViper() (*SumCmdConfig, error) {
+func NewSumCmdConfigFromViper(args []string) (*SumCmdConfig, error) {
 	var conf SumCmdConfig
 	if err := viper.Unmarshal(&conf); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal config from viper: %w", err)
@@ -22,6 +24,13 @@ func NewSumCmdConfigFromViper() (*SumCmdConfig, error) {
 	if err := conf.validate(); err != nil {
 		return nil, fmt.Errorf("failed to create sum cmd config: %w", err)
 	}
+
+	numbers, err := util.ConvertStringSliceToIntSlice(args)
+	if err != nil {
+		return nil, fmt.Errorf("failed to convert args to numbers. args=%q: %w", args, err)
+	}
+
+	conf.Numbers = numbers
 	return &conf, nil
 }
 
