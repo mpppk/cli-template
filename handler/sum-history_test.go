@@ -1,11 +1,12 @@
 package handler_test
 
 import (
-	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
+
+	"github.com/mpppk/cli-template/domain/model"
 
 	"github.com/mpppk/cli-template/repoimpl"
 
@@ -14,16 +15,33 @@ import (
 	"github.com/mpppk/cli-template/handler"
 )
 
-func TestSum(t *testing.T) {
+func TestSumHistory(t *testing.T) {
 	e := handler.NewServer()
 	r := repoimpl.NewMemorySumHistory()
+
+	history1 := &model.SumHistory{
+		IsNorm:  false,
+		Date:    time.Time{},
+		Numbers: model.Numbers{1, 2},
+		Result:  3,
+	}
+	history2 := &model.SumHistory{
+		IsNorm:  true,
+		Date:    time.Time{},
+		Numbers: model.Numbers{-1, 2},
+		Result:  3,
+	}
+
+	r.Add(history1)
+	r.Add(history2)
+
 	h := handler.New(r)
 
 	type params struct {
 		path string
 	}
 	type want struct {
-		res  handler.SumResponse
+		res  handler.SumHistoryResponse
 		code int
 	}
 	tests := []struct {
@@ -34,25 +52,30 @@ func TestSum(t *testing.T) {
 	}{
 		{
 			params: params{
-				path: "/api/sum?a=-1&b=2",
+				path: "/api/sum-history?limit=1",
 			},
 			want: want{
-				res:  handler.SumResponse{Result: 1},
+				res: handler.SumHistoryResponse{Result: []*model.SumHistory{
+					history2,
+				}},
 				code: http.StatusOK,
 			},
 		},
 		{
 			params: params{
-				path: "/api/sum?a=-1&b=2&norm=true",
+				path: "/api/sum-history?limit=2",
 			},
 			want: want{
-				res:  handler.SumResponse{Result: 3},
+				res: handler.SumHistoryResponse{Result: []*model.SumHistory{
+					history1,
+					history2,
+				}},
 				code: http.StatusOK,
 			},
 		},
 		{
 			params: params{
-				path: "/api/sum?a=1&b=str",
+				path: "/api/sum-history?limit=xxx",
 			},
 			want: want{
 				code: http.StatusBadRequest,
@@ -65,7 +88,7 @@ func TestSum(t *testing.T) {
 			req := httptest.NewRequest(http.MethodGet, tt.params.path, nil)
 			rec := httptest.NewRecorder()
 
-			err := h.Sum(e.NewContext(req, rec))
+			err := h.SumHistory(e.NewContext(req, rec))
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Handlers.Sum() error = %v, wantErr %v", err, tt.wantErr)
@@ -98,15 +121,4 @@ func TestSum(t *testing.T) {
 			}
 		})
 	}
-}
-
-func toResponseJSON(t *testing.T, res interface{}) string {
-	t.Helper()
-
-	resContents, err := json.Marshal(res)
-	if err != nil {
-		t.Fatalf("invalid test arg. res: %#v", res)
-	}
-
-	return fmt.Sprintln(string(resContents))
 }

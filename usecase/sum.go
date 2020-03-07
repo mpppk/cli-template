@@ -1,35 +1,55 @@
 package usecase
 
 import (
-	"fmt"
+	"log"
+	"time"
 
-	"github.com/mpppk/cli-template/domain"
+	"github.com/mpppk/cli-template/domain/model"
+	"github.com/mpppk/cli-template/domain/repository"
 )
 
-// CalcSum is use case to calculate sum
-func CalcSum(strNumbers []int) int {
-	return domain.NewNumbers(strNumbers).CalcSum()
+// SumUseCase represents usecases related sum calculation
+type SumUseCase struct {
+	sumHistoryRepository repository.SumHistory
 }
 
-// CalcSumFromStringSlice is use case to calculate sum from string slice
-func CalcSumFromStringSlice(strNumbers []string) (int, error) {
-	numbers, err := domain.NewNumbersFromStringSlice(strNumbers)
-	if err != nil {
-		return 0, fmt.Errorf("failed to create numbers from string slice: %w", err)
+// NewSum create use case related sum
+func NewSum(sumHistoryRepository repository.SumHistory) *SumUseCase {
+	return &SumUseCase{
+		sumHistoryRepository: sumHistoryRepository,
 	}
-	return numbers.CalcSum(), nil
+}
+
+// CalcSum is use case to calculate sum
+func (s *SumUseCase) CalcSum(numbers []int) int {
+	result := model.NewNumbers(numbers).CalcSum()
+	now := time.Now()
+	log.Printf("start saving history of sum result. date=%v, numbers=%d, result=%v\n", now, numbers, result)
+	s.sumHistoryRepository.Add(&model.SumHistory{
+		Date:    time.Now(), // FIXME
+		Numbers: numbers,
+		Result:  result,
+	})
+	log.Printf("finish saving history of sum result. date=%v, numbers=%d, result=%v\n", now, numbers, result)
+	return result
 }
 
 // CalcL1Norm is use case to calculate L1 norm
-func CalcL1Norm(strNumbers []int) int {
-	return domain.NewNumbers(strNumbers).CalcL1Norm()
+func (s *SumUseCase) CalcL1Norm(numbers []int) int {
+	result := model.NewNumbers(numbers).CalcL1Norm()
+	now := time.Now()
+	log.Printf("start saving history of norm result. date=%v, numbers=%d, result=%v\n", now, numbers, result)
+	s.sumHistoryRepository.Add(&model.SumHistory{
+		IsNorm:  true,
+		Date:    now, // FIXME
+		Numbers: numbers,
+		Result:  result,
+	})
+	log.Printf("finish saving history of norm result. date=%v, numbers=%d, result=%v\n", now, numbers, result)
+	return result
 }
 
-// CalcL1NormFromStringSlice is use case to calculate L1 norm from string slice
-func CalcL1NormFromStringSlice(strNumbers []string) (int, error) {
-	numbers, err := domain.NewNumbersFromStringSlice(strNumbers)
-	if err != nil {
-		return 0, fmt.Errorf("failed to create numbers from string slice: %w", err)
-	}
-	return numbers.CalcL1Norm(), nil
+// ListSumHistory lists history of sum
+func (s *SumUseCase) ListSumHistory(limit int) []*model.SumHistory {
+	return s.sumHistoryRepository.List(limit)
 }

@@ -3,6 +3,8 @@ package handler
 import (
 	"fmt"
 
+	"github.com/mpppk/cli-template/repoimpl"
+
 	"github.com/comail/colog"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo"
@@ -18,8 +20,10 @@ func (cv *customValidator) Validate(i interface{}) error {
 }
 
 func registerHandlers(e *echo.Echo) {
-	h := New()
+	r := repoimpl.NewMemorySumHistory()
+	h := New(r)
 	e.GET("/api/sum", h.Sum)
+	e.GET("/api/sum-history", h.SumHistory)
 }
 
 func bodyDumpHandler(c echo.Context, reqBody, resBody []byte) {
