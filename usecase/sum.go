@@ -8,6 +8,7 @@ import (
 	"github.com/mpppk/cli-template/domain/repository"
 )
 
+// SumUseCase represents usecases related sum calculation
 type SumUseCase struct {
 	sumHistoryRepository repository.SumHistory
 }
