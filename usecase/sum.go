@@ -1,16 +1,18 @@
 package usecase
 
 import (
-	"github.com/mpppk/cli-template/domain/model"
-	"github.com/mpppk/cli-template/domain/repository"
 	"log"
 	"time"
+
+	"github.com/mpppk/cli-template/domain/model"
+	"github.com/mpppk/cli-template/domain/repository"
 )
 
 type SumUseCase struct {
 	sumHistoryRepository repository.SumHistory
 }
 
+// NewSum create use case related sum
 func NewSum(sumHistoryRepository repository.SumHistory) *SumUseCase {
 	return &SumUseCase{
 		sumHistoryRepository: sumHistoryRepository,
@@ -20,11 +22,14 @@ func NewSum(sumHistoryRepository repository.SumHistory) *SumUseCase {
 // CalcSum is use case to calculate sum
 func (s *SumUseCase) CalcSum(numbers []int) int {
 	result := model.NewNumbers(numbers).CalcSum()
-	s.sumHistoryRepository.AddHistory(model.SumHistory{
-		Date:   time.Now(), // FIXME
+	now := time.Now()
+	log.Printf("start saving history of sum result. date=%v, numbers=%d, result=%v\n", now, numbers, result)
+	s.sumHistoryRepository.Add(&model.SumHistory{
+		Date:    time.Now(), // FIXME
 		Numbers: numbers,
-		Result: result,
+		Result:  result,
 	})
+	log.Printf("finish saving history of sum result. date=%v, numbers=%d, result=%v\n", now, numbers, result)
 	return result
 }
 
@@ -32,12 +37,18 @@ func (s *SumUseCase) CalcSum(numbers []int) int {
 func (s *SumUseCase) CalcL1Norm(numbers []int) int {
 	result := model.NewNumbers(numbers).CalcL1Norm()
 	now := time.Now()
-	log.Printf("start saving history. date=%v, numbers=%q, result=%q\n", now, numbers, result)
-	s.sumHistoryRepository.AddHistory(model.SumHistory{
-		Date:   now, // FIXME
+	log.Printf("start saving history of norm result. date=%v, numbers=%d, result=%v\n", now, numbers, result)
+	s.sumHistoryRepository.Add(&model.SumHistory{
+		IsNorm:  true,
+		Date:    now, // FIXME
 		Numbers: numbers,
-		Result: result,
+		Result:  result,
 	})
-	log.Printf("finish saving history. date=%v, numbers=%q, result=%q\n", now, numbers, result)
+	log.Printf("finish saving history of norm result. date=%v, numbers=%d, result=%v\n", now, numbers, result)
 	return result
+}
+
+// ListSumHistory lists history of sum
+func (s *SumUseCase) ListSumHistory(limit int) []*model.SumHistory {
+	return s.sumHistoryRepository.List(limit)
 }

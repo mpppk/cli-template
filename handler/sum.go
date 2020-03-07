@@ -1,15 +1,16 @@
 package handler
 
 import (
-	"github.com/mpppk/cli-template/domain/repository"
 	"net/http"
+
+	"github.com/mpppk/cli-template/domain/repository"
 
 	"github.com/labstack/echo"
 	"github.com/mpppk/cli-template/usecase"
 )
 
 // Handlers represent handlers of echo server
-type Handlers struct{
+type Handlers struct {
 	sumHistoryRepository repository.SumHistory
 }
 
@@ -24,9 +25,9 @@ type sumResponse struct {
 }
 
 // New create new handlers
-func New(sumHisotryRepository repository.SumHistory) *Handlers {
+func New(sumHistoryRepository repository.SumHistory) *Handlers {
 	return &Handlers{
-		sumHistoryRepository: sumHisotryRepository,
+		sumHistoryRepository: sumHistoryRepository,
 	}
 }
 

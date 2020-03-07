@@ -3,7 +3,8 @@ package model
 import "time"
 
 type SumHistory struct {
-	Date time.Time
+	IsNorm  bool
+	Date    time.Time
 	Numbers Numbers
-	Result int
+	Result  int
 }

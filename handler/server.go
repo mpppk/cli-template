@@ -2,6 +2,7 @@ package handler
 
 import (
 	"fmt"
+
 	"github.com/mpppk/cli-template/repoimpl"
 
 	"github.com/comail/colog"
@@ -22,6 +23,7 @@ func registerHandlers(e *echo.Echo) {
 	r := repoimpl.NewMemorySumHistory()
 	h := New(r)
 	e.GET("/api/sum", h.Sum)
+	e.GET("/api/sum-history", h.SumHistory)
 }
 
 func bodyDumpHandler(c echo.Context, reqBody, resBody []byte) {
