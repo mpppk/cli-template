@@ -3,10 +3,12 @@ SHELL = /bin/bash
 .PHONY: setup
 setup:
 	go get github.com/google/wire/cmd/wire
+	go get github.com/goreleaser/goreleaser
 
 .PHONY: lint
 lint: generate
 	go vet ./...
+	goreleaser check
 
 .PHONY: test
 test: generate

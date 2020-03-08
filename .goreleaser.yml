@@ -8,7 +8,7 @@ builds:
   - darwin
   - linux
   - windows
-- env:
+  env:
   - CGO_ENABLED=0
   - GO111MODULE=on
 archives:
