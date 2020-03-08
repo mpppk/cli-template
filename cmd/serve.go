@@ -4,6 +4,7 @@ import (
 	"github.com/mpppk/cli-template/cmd/option"
 	"github.com/mpppk/cli-template/registry"
 	"github.com/spf13/afero"
+	"github.com/spf13/viper"
 
 	"github.com/spf13/cobra"
 )
@@ -40,6 +41,9 @@ func registerServeCommandFlags(cmd *cobra.Command) error {
 		},
 	}
 
+	if err := viper.BindEnv("port"); err != nil {
+		return err
+	}
 	return option.RegisterFlags(cmd, flags)
 }
 
