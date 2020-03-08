@@ -18,7 +18,7 @@ func newServeCmd(fs afero.Fs) (*cobra.Command, error) {
 			if err != nil {
 				return err
 			}
-			e := registry.InitializeServer()
+			e := registry.InitializeServer(nil)
 			e.Logger.Fatal(e.Start(":" + conf.Port))
 			return nil
 		},

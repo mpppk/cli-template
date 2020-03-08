@@ -6,6 +6,7 @@ package registry
 
 import (
 	"github.com/labstack/echo"
+	"github.com/mpppk/cli-template/domain/model"
 	"github.com/mpppk/cli-template/handler"
 	"github.com/mpppk/cli-template/infra"
 	"github.com/mpppk/cli-template/infra/repoimpl"
@@ -13,17 +14,17 @@ import (
 )
 import "github.com/google/wire"
 
-func InitializeHandler() *handler.Handlers {
+func InitializeHandler(v []*model.SumHistory) *handler.Handlers {
 	wire.Build(handler.New, usecase.NewSum, repoimpl.NewMemorySumHistory)
 	return &handler.Handlers{}
 }
 
-func InitializeSumUseCase() *usecase.Sum {
+func InitializeSumUseCase(v []*model.SumHistory) *usecase.Sum {
 	wire.Build(repoimpl.NewMemorySumHistory, usecase.NewSum)
 	return &usecase.Sum{}
 }
 
-func InitializeServer() *echo.Echo {
+func InitializeServer(v []*model.SumHistory) *echo.Echo {
 	wire.Build(
 		handler.New,
 		repoimpl.NewMemorySumHistory,

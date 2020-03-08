@@ -34,7 +34,7 @@ func newSumCmd(fs afero.Fs) (*cobra.Command, error) {
 				return err
 			}
 
-			useCase := registry.InitializeSumUseCase()
+			useCase := registry.InitializeSumUseCase(nil)
 
 			var result int
 			if conf.Norm {

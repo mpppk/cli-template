@@ -16,7 +16,7 @@ import (
 )
 
 func TestSum(t *testing.T) {
-	h := registry.InitializeHandler()
+	h := registry.InitializeHandler(nil)
 	e := infra.NewServer(h)
 
 	type params struct {

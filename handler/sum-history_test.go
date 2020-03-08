@@ -6,12 +6,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mpppk/cli-template/usecase"
+	"github.com/mpppk/cli-template/registry"
 
 	"github.com/mpppk/cli-template/domain/model"
-	"github.com/mpppk/cli-template/infra"
-
-	"github.com/mpppk/cli-template/infra/repoimpl"
 
 	"github.com/labstack/echo"
 
@@ -19,7 +16,6 @@ import (
 )
 
 func TestSumHistory(t *testing.T) {
-	r := repoimpl.NewMemorySumHistory()
 
 	history1 := &model.SumHistory{
 		IsNorm:  false,
@@ -33,13 +29,9 @@ func TestSumHistory(t *testing.T) {
 		Numbers: model.Numbers{-1, 2},
 		Result:  3,
 	}
-
-	r.Add(history1)
-	r.Add(history2)
-
-	u := usecase.NewSum(r)
-	h := handler.New(u)
-	e := infra.NewServer(h)
+	history := []*model.SumHistory{history1, history2}
+	h := registry.InitializeHandler(history)
+	e := registry.InitializeServer(nil)
 
 	type params struct {
 		path string
