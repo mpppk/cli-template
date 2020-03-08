@@ -23,15 +23,6 @@ jobs:
       - run: make build
       - run: make test
       - run: make codecov
-  release:
-    <<: *defaults
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - go-module-cache-v1-{{ checksum "~/project/go.sum" }}
-            - go-module-cache-v1-
-      - run: curl -sL https://git.io/goreleaser | bash
 
 workflows:
   version: 2
@@ -43,11 +34,3 @@ workflows:
               only: /.*/
             tags:
               only: /.*/
-      - release:
-          filters:
-            branches:
-              ignore: /.*/
-            tags:
-              only: /v[0-9]+(\.[0-9]+)*(-.*)*/
-          requires:
-            - test
