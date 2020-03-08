@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mpppk/cli-template/handler"
+	"github.com/mpppk/cli-template/infra"
 	"github.com/mpppk/cli-template/util"
 
 	"github.com/mpppk/cli-template/cmd/option"
@@ -25,7 +25,7 @@ func NewRootCmd(fs afero.Fs) (*cobra.Command, error) {
 		if err != nil {
 			return err
 		}
-		handler.InitializeLog(conf.Verbose)
+		infra.InitializeLog(conf.Verbose)
 		return nil
 	}
 

@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"github.com/mpppk/cli-template/cmd/option"
-	"github.com/mpppk/cli-template/handler"
+	"github.com/mpppk/cli-template/registry"
 	"github.com/spf13/afero"
 
 	"github.com/spf13/cobra"
@@ -18,7 +18,7 @@ func newServeCmd(fs afero.Fs) (*cobra.Command, error) {
 			if err != nil {
 				return err
 			}
-			e := handler.NewServer()
+			e := registry.InitializeServer(nil)
 			e.Logger.Fatal(e.Start(":" + conf.Port))
 			return nil
 		},

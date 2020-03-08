@@ -19,6 +19,7 @@ jobs:
           key: go-module-cache-v1-{{ checksum "~/project/go.sum" }}
           paths:
             - ~/go/pkg/mod/cache
+      - run: make setup
       - run: make build
       - run: make test
       - run: make codecov

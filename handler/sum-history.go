@@ -6,7 +6,6 @@ import (
 	"github.com/mpppk/cli-template/domain/model"
 
 	"github.com/labstack/echo"
-	"github.com/mpppk/cli-template/usecase"
 )
 
 type sumHistoryRequest struct {
@@ -33,9 +32,7 @@ func (h *Handlers) SumHistory(c echo.Context) error {
 		req.Limit = 10
 	}
 
-	useCase := usecase.NewSum(h.sumHistoryRepository)
-
-	history := useCase.ListSumHistory(req.Limit)
+	history := h.sumUseCase.ListSumHistory(req.Limit)
 
 	return c.JSON(http.StatusOK, sumHistoryResponse{Result: history})
 }

@@ -8,20 +8,20 @@ import (
 	"github.com/mpppk/cli-template/domain/repository"
 )
 
-// SumUseCase represents usecases related sum calculation
-type SumUseCase struct {
+// Sum represents usecases related sum calculation
+type Sum struct {
 	sumHistoryRepository repository.SumHistory
 }
 
 // NewSum create use case related sum
-func NewSum(sumHistoryRepository repository.SumHistory) *SumUseCase {
-	return &SumUseCase{
+func NewSum(sumHistoryRepository repository.SumHistory) *Sum {
+	return &Sum{
 		sumHistoryRepository: sumHistoryRepository,
 	}
 }
 
 // CalcSum is use case to calculate sum
-func (s *SumUseCase) CalcSum(numbers []int) int {
+func (s *Sum) CalcSum(numbers []int) int {
 	result := model.NewNumbers(numbers).CalcSum()
 	now := time.Now()
 	log.Printf("start saving history of sum result. date=%v, numbers=%d, result=%v\n", now, numbers, result)
@@ -35,7 +35,7 @@ func (s *SumUseCase) CalcSum(numbers []int) int {
 }
 
 // CalcL1Norm is use case to calculate L1 norm
-func (s *SumUseCase) CalcL1Norm(numbers []int) int {
+func (s *Sum) CalcL1Norm(numbers []int) int {
 	result := model.NewNumbers(numbers).CalcL1Norm()
 	now := time.Now()
 	log.Printf("start saving history of norm result. date=%v, numbers=%d, result=%v\n", now, numbers, result)
@@ -50,6 +50,6 @@ func (s *SumUseCase) CalcL1Norm(numbers []int) int {
 }
 
 // ListSumHistory lists history of sum
-func (s *SumUseCase) ListSumHistory(limit int) []*model.SumHistory {
+func (s *Sum) ListSumHistory(limit int) []*model.SumHistory {
 	return s.sumHistoryRepository.List(limit)
 }

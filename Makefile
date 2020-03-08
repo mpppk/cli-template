@@ -1,27 +1,39 @@
 SHELL = /bin/bash
 
+.PHONY: setup
+setup:
+	go get github.com/google/wire/cmd/wire
+
 .PHONY: lint
-lint:
+lint: generate
 	go vet ./...
 
 .PHONY: test
-test:
+test: generate
 	go test ./...
 
 .PHONY: integration-test
-integration-test: deps
+integration-test:
 	go test -tags=integration ./...
 
 .PHONY: coverage
-coverage:
+coverage: generate
 	go test -race -coverprofile=coverage.txt -covermode=atomic ./...
 
 .PHONY: codecov
 codecov:  coverage
 	bash <(curl -s https://codecov.io/bash)
 
+.PHONY: wire
+wire:
+	go generate -tags=wireinject ./...
+
+.PHONY: generate
+generate: wire
+	go generate ./...
+
 .PHONY: build
-build:
+build: generate
 	go build
 
 .PHONY: cross-build-snapshot

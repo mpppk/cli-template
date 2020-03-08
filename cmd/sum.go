@@ -2,11 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/mpppk/cli-template/repoimpl"
 	"log"
 	"strconv"
 
-	"github.com/mpppk/cli-template/usecase"
+	"github.com/mpppk/cli-template/registry"
 
 	"github.com/mpppk/cli-template/cmd/option"
 	"github.com/spf13/afero"
@@ -35,8 +34,7 @@ func newSumCmd(fs afero.Fs) (*cobra.Command, error) {
 				return err
 			}
 
-			r := repoimpl.NewMemorySumHistory()
-			useCase := usecase.NewSum(r)
+			useCase := registry.InitializeSumUseCase(nil)
 
 			var result int
 			if conf.Norm {

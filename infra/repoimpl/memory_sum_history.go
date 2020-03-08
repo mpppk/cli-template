@@ -13,8 +13,11 @@ type MemorySumHistory struct {
 }
 
 // NewMemorySumHistory create new MemorySumHistory repository
-func NewMemorySumHistory() repository.SumHistory {
-	return &MemorySumHistory{history: []*model.SumHistory{}}
+func NewMemorySumHistory(v []*model.SumHistory) repository.SumHistory {
+	if v == nil {
+		v = []*model.SumHistory{}
+	}
+	return &MemorySumHistory{history: v}
 }
 
 // Add add new sum history to repository

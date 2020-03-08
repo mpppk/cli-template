@@ -7,7 +7,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/mpppk/cli-template/repoimpl"
+	"github.com/mpppk/cli-template/infra"
+	"github.com/mpppk/cli-template/registry"
 
 	"github.com/labstack/echo"
 
@@ -15,9 +16,8 @@ import (
 )
 
 func TestSum(t *testing.T) {
-	e := handler.NewServer()
-	r := repoimpl.NewMemorySumHistory()
-	h := handler.New(r)
+	h := registry.InitializeHandler(nil)
+	e := infra.NewServer(h)
 
 	type params struct {
 		path string

@@ -1,9 +1,9 @@
-package handler
+package infra
 
 import (
 	"fmt"
 
-	"github.com/mpppk/cli-template/repoimpl"
+	"github.com/mpppk/cli-template/handler"
 
 	"github.com/comail/colog"
 	"github.com/go-playground/validator/v10"
@@ -19,11 +19,9 @@ func (cv *customValidator) Validate(i interface{}) error {
 	return cv.validator.Struct(i)
 }
 
-func registerHandlers(e *echo.Echo) {
-	r := repoimpl.NewMemorySumHistory()
-	h := New(r)
-	e.GET("/api/sum", h.Sum)
-	e.GET("/api/sum-history", h.SumHistory)
+func registerHandlers(e *echo.Echo, handlers *handler.Handlers) {
+	e.GET("/api/sum", handlers.Sum)
+	e.GET("/api/sum-history", handlers.SumHistory)
 }
 
 func bodyDumpHandler(c echo.Context, reqBody, resBody []byte) {
@@ -32,14 +30,14 @@ func bodyDumpHandler(c echo.Context, reqBody, resBody []byte) {
 }
 
 // NewServer create new echo server with handlers
-func NewServer() *echo.Echo {
+func NewServer(handlers *handler.Handlers) *echo.Echo {
 	e := echo.New()
 	e.Validator = &customValidator{validator: validator.New()}
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
 		Format: fmt.Sprintln("method=${method}, uri=${uri}, status=${status}"),
 	}))
 	e.Use(middleware.BodyDump(bodyDumpHandler))
-	registerHandlers(e)
+	registerHandlers(e, handlers)
 	return e
 }
 
