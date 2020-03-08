@@ -3,15 +3,13 @@ package handler
 import (
 	"net/http"
 
-	"github.com/mpppk/cli-template/domain/repository"
-
 	"github.com/labstack/echo"
 	"github.com/mpppk/cli-template/usecase"
 )
 
 // Handlers represent handlers of echo server
 type Handlers struct {
-	sumHistoryRepository repository.SumHistory
+	sumUseCase *usecase.Sum
 }
 
 type sumRequest struct {
@@ -25,10 +23,8 @@ type sumResponse struct {
 }
 
 // New create new handlers
-func New(sumHistoryRepository repository.SumHistory) *Handlers {
-	return &Handlers{
-		sumHistoryRepository: sumHistoryRepository,
-	}
+func New(sumUseCase *usecase.Sum) *Handlers {
+	return &Handlers{sumUseCase: sumUseCase}
 }
 
 // Sum handle http request to calculate sum
@@ -43,13 +39,11 @@ func (h *Handlers) Sum(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	useCase := usecase.NewSum(h.sumHistoryRepository)
-
 	var result int
 	if req.Norm {
-		result = useCase.CalcL1Norm([]int{req.A, req.B})
+		result = h.sumUseCase.CalcL1Norm([]int{req.A, req.B})
 	} else {
-		result = useCase.CalcSum([]int{req.A, req.B})
+		result = h.sumUseCase.CalcSum([]int{req.A, req.B})
 	}
 	return c.JSON(http.StatusOK, sumResponse{Result: result})
 }
