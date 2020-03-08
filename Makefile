@@ -1,11 +1,11 @@
 SHELL = /bin/bash
 
 .PHONY: lint
-lint:
+lint: generate
 	go vet ./...
 
 .PHONY: test
-test:
+test: generate
 	go test ./...
 
 .PHONY: integration-test
@@ -13,7 +13,7 @@ integration-test: deps
 	go test -tags=integration ./...
 
 .PHONY: coverage
-coverage:
+coverage: generate
 	go test -race -coverprofile=coverage.txt -covermode=atomic ./...
 
 .PHONY: codecov
