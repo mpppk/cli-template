@@ -2,6 +2,8 @@
 
 package registry
 
+//go:generate wire
+
 import (
 	"github.com/labstack/echo"
 	"github.com/mpppk/cli-template/handler"

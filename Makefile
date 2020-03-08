@@ -20,8 +20,16 @@ coverage:
 codecov:  coverage
 	bash <(curl -s https://codecov.io/bash)
 
+.PHONY: wire
+wire:
+	go generate -tags=wireinject ./...
+
+.PHONY: generate
+generate: wire
+	go generate ./...
+
 .PHONY: build
-build:
+build: generate
 	go build
 
 .PHONY: cross-build-snapshot
