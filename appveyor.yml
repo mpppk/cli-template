@@ -9,13 +9,12 @@ environment:
   GO111MODULE: on
 
 install:
+  - set PATH=%GOPATH%/bin;%PATH%
   - echo %PATH%
   - echo %GOPATH%
   - git submodule update --init --recursive
   - go version
   - go env
-  - echo "::set-env name=GOPATH::$(go env GOPATH)"
-  - echo "::add-path::$(go env GOPATH)/bin"
   - go get github.com/google/wire/cmd/wire
   - go get -v -t -d ./...
   - go generate -tags=wireinject ./...
