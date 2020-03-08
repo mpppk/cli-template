@@ -8,7 +8,7 @@ import (
 	"github.com/rhysd/go-github-selfupdate/selfupdate"
 )
 
-const Version = "1.2.3"
+const Version = "0.2.2"
 const slug = "mpppk/cli-template"
 
 // Do execute updating binary
