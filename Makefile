@@ -1,5 +1,9 @@
 SHELL = /bin/bash
 
+.PHONY: setup
+setup:
+	go get github.com/google/wire/cmd/wire
+
 .PHONY: lint
 lint: generate
 	go vet ./...
@@ -9,7 +13,7 @@ test: generate
 	go test ./...
 
 .PHONY: integration-test
-integration-test: deps
+integration-test:
 	go test -tags=integration ./...
 
 .PHONY: coverage
