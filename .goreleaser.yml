@@ -1,15 +1,19 @@
+before:
+  hooks:
+    - go mod download
+    - make setup
+    - make generate
 builds:
-  - env:
-      - CGO_ENABLED=0
-      - GO111MODULE=on
-    goos:
-      - darwin
-      - linux
-      - windows
-    ignore:
-      - goos: darwin
-        goarch: 386
-archive:
+- env:
+  - CGO_ENABLED=0
+  - GO111MODULE=on
+archives:
+- replacements:
+    darwin: Darwin
+    linux: Linux
+    windows: Windows
+    386: i386
+    amd64: x86_64
   format_overrides:
     - goos: windows
       format: zip
@@ -21,13 +25,5 @@ changelog:
   sort: asc
   filters:
     exclude:
-      - '^docs:'
-      - '^test:'
-brew:
-  github:
-    owner: mpppk
-    name: homebrew-mpppk
-  homepage: "https://github.com/mpppk/cli-template"
-  description: "some description"
-  test: |
-    system "#{bin}/hlb --help"
+    - '^docs:'
+    - '^test:'

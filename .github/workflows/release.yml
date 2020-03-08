@@ -8,11 +8,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
-        with:
-          fetch-depth: 1
+        uses: actions/checkout@v2
 
-      - name: Setup Go
+      - name: Unshallow
+        run: git fetch --prune --unshallow
+
+      - name: Set up Go
         uses: actions/setup-go@v1
         with:
           go-version: 1.13
@@ -22,16 +23,11 @@ jobs:
           echo "::set-env name=GOPATH::$(go env GOPATH)"
           echo "::add-path::$(go env GOPATH)/bin"
 
-      - name: Setup
-        run: make setup
-
-      - name: Generate
-        run: make generate
-
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v1
         with:
           version: latest
           args: release --rm-dist
+          key: ${{ secrets.YOUR_PRIVATE_KEY }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
