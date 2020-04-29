@@ -2,8 +2,12 @@ SHELL = /bin/bash
 
 .PHONY: setup
 setup:
+	mv go.mod go.mod.org
+	mv go.sum go.sum.org
 	go get github.com/google/wire/cmd/wire
 	go get github.com/goreleaser/goreleaser
+	mv go.mod.org go.mod
+	mv go.sum.org go.sum
 
 .PHONY: lint
 lint: generate
