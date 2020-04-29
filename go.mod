@@ -1,6 +1,6 @@
 module github.com/mpppk/cli-template
 
-go 1.12
+go 1.14
 
 require (
 	github.com/blang/semver v3.5.1+incompatible
