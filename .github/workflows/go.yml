@@ -12,7 +12,7 @@ jobs:
           - windows-latest
           - macOS-latest
         goversion:
-          - 1.13
+          - 1.14
     steps:
 
     - name: Set up Go
