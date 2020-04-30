@@ -1,6 +1,8 @@
 before:
   hooks:
     - make setup
+    - git checkout -- go.mod
+    - git checkout -- go.sum
     - make generate
 builds:
 - goos:
