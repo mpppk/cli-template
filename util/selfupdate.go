@@ -9,7 +9,7 @@ import (
 )
 
 // Version represents version of this tool
-const Version = "0.2.2"
+const Version = "0.2.5"
 const slug = "mpppk/cli-template"
 
 // Do execute updating binary
