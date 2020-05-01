@@ -4,6 +4,8 @@ package util
 import (
 	"fmt"
 	"strconv"
+
+	"github.com/comail/colog"
 )
 
 // ConvertStringSliceToIntSlice converts string slices to int slices.
@@ -16,4 +18,15 @@ func ConvertStringSliceToIntSlice(stringSlice []string) (intSlice []int, err err
 		intSlice = append(intSlice, num)
 	}
 	return
+}
+
+// InitializeLog initialize log settings
+func InitializeLog(verbose bool) {
+	colog.Register()
+	colog.SetDefaultLevel(colog.LDebug)
+	colog.SetMinLevel(colog.LInfo)
+
+	if verbose {
+		colog.SetMinLevel(colog.LDebug)
+	}
 }
