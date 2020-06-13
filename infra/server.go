@@ -5,7 +5,6 @@ import (
 
 	"github.com/mpppk/cli-template/handler"
 
-	"github.com/comail/colog"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -39,15 +38,4 @@ func NewServer(handlers *handler.Handlers) *echo.Echo {
 	e.Use(middleware.BodyDump(bodyDumpHandler))
 	registerHandlers(e, handlers)
 	return e
-}
-
-// InitializeLog initialize log settings
-func InitializeLog(verbose bool) {
-	colog.Register()
-	colog.SetDefaultLevel(colog.LDebug)
-	colog.SetMinLevel(colog.LInfo)
-
-	if verbose {
-		colog.SetMinLevel(colog.LDebug)
-	}
 }
