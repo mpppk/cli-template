@@ -16,7 +16,7 @@ jobs:
     if: github.event.action == 'opened' || github.event.action == 'reopened' || github.event.action == 'synchronize'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       # Setup gcloud CLI
       - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
