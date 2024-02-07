@@ -7,7 +7,7 @@ require (
 	github.com/blang/semver/v4 v4.0.0
 	github.com/comail/colog v0.0.0-20160416085026-fba8e7b1f46c
 	github.com/go-playground/validator/v10 v10.4.1
-	github.com/google/wire v0.5.0
+	github.com/google/wire v0.6.0
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/gommon v0.3.0 // indirect
 	github.com/mattn/go-colorable v0.1.4 // indirect
@@ -19,6 +19,4 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.1
 	github.com/valyala/fasttemplate v1.1.0 // indirect
-	golang.org/x/net v0.0.0-20200202094626-16171245cfb2 // indirect
-	golang.org/x/sys v0.0.0-20200124204421-9fbb57f87de9 // indirect
 )
